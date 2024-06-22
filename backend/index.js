@@ -1,116 +1,143 @@
 const express = require('express');
+const helmet = require('helmet'); 
 const app = express();
-const {DBConnection} = require('./database/db.js');
+const { DBConnection } = require('./database/db.js');
 const User = require('./models/User.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+const { createAdminAccount } = require("./scripts/admin.js");
+const { generateRefreshToken, verifyToken } = require("./utils/jwtUtil.js");
+
 dotenv.config();
 
-//middlewares
+// Middlewares
+app.use(helmet());
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
+// Set security headers manually if needed
+app.use((req, res, next) => {
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+    next();
+});
+
+// Initialize database and admin account
 DBConnection();
+createAdminAccount();
 
-app.get('/', (req,res) => {
+app.get('/', (req, res) => {
     res.send('Welcome');
 });
 
-app.post('/register', async (req,res) => {
-    console.log(req);
-    try{
-        //get all the data from request body
-        const {firstname,lastname, email, password} = req.body;
+app.post('/register', async (req, res) => {
+    try {
+        const { firstname, lastname, email, password } = req.body;
 
-        //check that all data should exist
-        if(!firstname && lastname && email && password){
+        if (!firstname || !lastname || !email || !password) {
             return res.status(400).send('Please enter all the required fields!');
         }
 
-        //check if user already exists
-        const existingUser = await User.findOne({email})
-        if(existingUser){
-            return res.status(400).send('User already exist!');
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).send('User already exists!');
         }
 
-        //encrypt the password
-        const hashPassword = bcrypt.hashSync(password,10);
+        const hashPassword = bcrypt.hashSync(password, 10);
         console.log(hashPassword);
 
-        //save the user to the database
         const user = await User.create({
             firstname,
             lastname,
             email,
-            password: hashPassword, 
+            password: hashPassword,
         });
 
-        //generate a token for the user and send it
-        const token = jwt.sign({id:user._id, email}, process.env.SECRET_KEY,{
+        const token = jwt.sign({ id: user._id, email }, process.env.SECRET_KEY, {
             expiresIn: "1h"
-        }); 
+        });
         user.token = token;
         user.password = undefined;
+
         res.status(201).json({
-            message: "You have successfully refistered",
+            message: "You have successfully registered",
             user
         });
 
-    }
-    catch(error){
+    } catch (error) {
         console.log(error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
-app.post('/login', async (req,res) => {
-    try{
-        //get all data from req body
-        const {email,password} = req.body;
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-        //check that all the data should exist
-        if(!email && password){
+        if (!email || !password) {
             return res.status(400).send('Please enter all the required fields!');
         }
 
-        //check if user is registered
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).send("User not found!");
         }
 
-        //match password
         const enteredPassword = await bcrypt.compare(password, user.password);
         if (!enteredPassword) {
             return res.status(401).send("Password is incorrect");
         }
 
-        //create token
         const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
-            expiresIn: "1d",
+            expiresIn: "1h",
         });
         user.token = token;
-        user.password = undefined
+        user.password = undefined;
 
-        //store cookies
         const options = {
             expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-            httpOnly: true, //only manipulate by server not by client/user
+            httpOnly: true,
         };
 
-        //send the token
         res.status(200).cookie("token", token, options).json({
             message: "You have successfully logged in!",
             success: true,
             token,
-        }); 
-    }
-    catch(error){
+        });
+    } catch (error) {
         console.log(error.message);
+        res.status(500).send('Internal Server Error');
     }
 });
 
+app.post('/refresh-token', async (req, res) => {
+    try {
+        const { oldToken } = req.body;
+        const decodedToken = verifyToken(oldToken);
 
-app.listen(8000, ()=> {
+        if (!decodedToken) {
+            return res.status(400).send('Invalid token!');
+        }
+
+        const exisuser = await User.findById(decodedToken.id);
+        if (!exisuser) {
+            return res.status(401).send("User not found!");
+        }
+
+        const newToken = generateRefreshToken(exisuser);
+        res.status(200).json({ message: "Refresh token created successfully", token: newToken, user: exisuser });
+    }    
+    catch (error) {
+        console.log(error.message);
+        res.status(401).json({ message: "Invalid token" });
+    }
+});
+
+app.listen(8000, () => {
     console.log("Server is listening on port 8000");
 });
