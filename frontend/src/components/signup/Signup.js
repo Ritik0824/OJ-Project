@@ -1,118 +1,109 @@
 import React, { useState } from 'react';
+import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { app } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
+    const [firstname, setFirstname] = useState('');
+    const [lastname, setLastname] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
-    email: '',
-    password: ''
-  });
+    const submitHandler = (event) => {
+        event.preventDefault();
+        const auth = getAuth(app);
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(res => {
+                console.log(res.user);
+                navigate('/login');
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
+    const loginWithGoogle = () => {
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                console.log(result);
+                navigate('/dashboard');
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:8000/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      const result = await response.json();
-      console.log(result); // Assuming backend returns some JSON response
-      if(result.user._id){
-        navigate("/login");
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+    return (
+        <div className="relative min-h-screen flex items-center justify-center bg-gray-100">
+            {/* Gradient overlay covering the entire background */}
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black to-rgba(55, 1, 97, 0.963) z-[-1]"></div>
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign up for an account</h2>
+            <div className="login-page bg-white rounded-lg border border-gray-300 shadow-md text-center p-6 max-w-[400px] w-full">
+                <div className="close-button" aria-label="Close">
+                    <i className="fas fa-times"></i>
+                </div>
+                <h1 className="text-2xl font-bold mb-3">Welcome!</h1>
+                <h2 className="text-lg font-normal mb-4">Signup for a new account</h2>
+
+                <form onSubmit={submitHandler} className="mb-6">
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="First Name"
+                            value={firstname}
+                            onChange={(e) => setFirstname(e.target.value)}
+                            className="w-full h-10 px-3 border border-gray-300 rounded-md text-sm bg-gray-100 focus:outline-none focus:border-blue-400"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="Last Name"
+                            value={lastname}
+                            onChange={(e) => setLastname(e.target.value)}
+                            className="w-full h-10 px-3 border border-gray-300 rounded-md text-sm bg-gray-100 focus:outline-none focus:border-blue-400"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full h-10 px-3 border border-gray-300 rounded-md text-sm bg-gray-100 focus:outline-none focus:border-blue-400"
+                            required
+                        />
+                    </div>
+                    <div className="mb-6">
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full h-10 px-3 border border-gray-300 rounded-md text-sm bg-gray-100 focus:outline-none focus:border-blue-400"
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="w-full h-10 px-4 bg-teal-600 text-white rounded-md text-lg hover:bg-teal-500 transition duration-300">Signup</button>
+                </form>
+
+                <div className="or my-4 text-sm font-bold text-gray-600">or</div>
+
+                <div className="social-buttons">
+                    <button type="button" onClick={loginWithGoogle} className="google w-full h-10 px-4 border border-gray-300 rounded-md flex items-center justify-center text-sm hover:bg-gray-200 transition duration-300">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" alt="Google Logo" className="w-5 mr-2" /> Sign up with Google
+                    </button>
+                </div>
+
+                <p className="sign-in mt-4 text-sm text-gray-600">Already have an account? <a href="/login" className="text-teal-600 hover:text-teal-500 transition duration-300">Sign in</a></p>
+            </div>
         </div>
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="firstname" className="sr-only">Firstname</label>
-              <input
-                id="firstname"
-                name="firstname"
-                type="text"
-                required
-                value={formData.firstname}
-                onChange={handleInputChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Firstname"
-              />
-            </div>
-            <div>
-              <label htmlFor="lastname" className="sr-only">Lastname</label>
-              <input
-                id="lastname"
-                name="lastname"
-                type="text"
-                required
-                value={formData.lastname}
-                onChange={handleInputChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Lastname"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="sr-only">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Sign up
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Signup;
