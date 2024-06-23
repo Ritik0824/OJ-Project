@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const { createAdminAccount } = require("./scripts/admin.js");
 const { generateRefreshToken, verifyToken } = require("./utils/jwtUtil.js");
+const problemRoutes = require('./routes/problem.js');
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use('/', problemRoutes);
 
 // Set security headers manually if needed
 app.use((req, res, next) => {
