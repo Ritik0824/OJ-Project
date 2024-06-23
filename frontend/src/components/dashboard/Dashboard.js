@@ -6,6 +6,7 @@ import Contest from '../contest/Contest';
 import Blog from '../blogs/Blogs';
 import Courses from '../courses/Course';
 import ProblemDetails from '../problems/problemdetails';
+import ProblemForm from '../problems/problemForm';
 
 const Dashboard = () => {
   return (
@@ -18,6 +19,8 @@ const Dashboard = () => {
         <Route path="/contest" element={<Contest />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/problems/:id" element={<ProblemDetails />} />
+        <Route path="/problem/new" element={<ProblemForm />} /> {/* Add this line */}
+
       </Routes>
     </>
   )

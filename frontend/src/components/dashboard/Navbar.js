@@ -34,7 +34,7 @@ const Navbar = () => {
       <div className="flex flex-nowrap overflow-hidden space-x-4 items-center ml-4">
         <Link
           to="/dashboard/problem"
-          className={`text-white hover:text-gray-300 pb-1  text-decoration-none ${currentPage === 'problem' ? 'border-b-2 border-green-500 ' : ''}`}
+          className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'problem' ? 'border-b-2 border-green-500 ' : ''}`}
         >
           Problems
         </Link>
@@ -56,6 +56,12 @@ const Navbar = () => {
         >
           Blogs
         </Link>
+        <Link
+          to="/dashboard/problem/new"
+          className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'new' ? 'border-b-2 border-green-500' : ''}`}
+        >
+          Add Problem
+        </Link> {/* Add this link */}
       </div>
       <div className="flex items-center ml-auto space-x-4">
         <div className="relative">
