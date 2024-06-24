@@ -5,25 +5,25 @@ import Problem from '../problems/Problem';
 import Contest from '../contest/Contest';
 import Blog from '../blogs/Blogs';
 import Courses from '../courses/Course';
-import ProblemDetails from '../problems/problemdetails';
-import ProblemForm from '../problems/problemForm';
+import ProblemDetails from '../problems/problemdetails'; // Adjusted import
+import ProblemForm from '../problems/problemForm'; // Adjusted import
 
 const Dashboard = () => {
+  console.log("Dashboard page"); // Moved outside of JSX
+
   return (
     <>
-    <Navbar />
+      <Navbar />
       <Routes>
-        console.log("Dashboard page");
         <Route path="/course" element={<Courses />} />
         <Route path="/problem" element={<Problem />} />
         <Route path="/contest" element={<Contest />} />
         <Route path="/blog" element={<Blog />} />
-        <Route path="/problems/:id" element={<ProblemDetails />} />
-        <Route path="/problem/new" element={<ProblemForm />} /> {/* Add this line */}
-
+        <Route path="/problem/:id" element={<ProblemDetails />} />
+        <Route path="/problem/new" element={<ProblemForm />} />
       </Routes>
     </>
-  )
-}
+  );
+};
 
 export default Dashboard;

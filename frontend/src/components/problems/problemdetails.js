@@ -1,69 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import Axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-const ProblemDetails = () => {
-    const { id } = useParams();
-    const [problem, setProblem] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+const ProblemDetail = () => {
+  const { id } = useParams(); // This fetches the id parameter from the URL
+  const [problem, setProblem] = useState(null);
+  const [loading, setLoading] = useState(true); // Add a loading state
+  const [error, setError] = useState(null); // Add an error state
 
-    useEffect(() => {
-        Axios.get(`http://localhost:8000/get-problem/${id}`)
-            .then(response => {
-                setProblem(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                setError(error);
-                setLoading(false);
-            });
-    }, [id]);
+  useEffect(() => {
+    const fetchProblem = async () => {
+      try {
+        console.log('Fetching problem with ID:', id); // Debug line
+        const response = await Axios.get(`http://localhost:8000/problem/${id}`);
+        console.log('API response:', response.data); // Debug line
+        setProblem(response.data.data); // Access the 'data' object inside the response
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching problem:', error);
+        setError('Error fetching problem data');
+        setLoading(false);
+      }
+    };
 
-    if (loading) {
-        return <div>Loading...</div>;
+    if (id) {
+      fetchProblem();
     }
+  }, [id]);
 
-    if (error) {
-        return <div>Error loading problem: {error.message}</div>;
-    }
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-    if (!problem) {
-        return <div>Problem not found</div>;
-    }
+  if (error) {
+    return <div>{error}</div>;
+  }
 
-    const {
-        problemName,
-        description,
-        difficulty,
-        submissions,
-        marks,
-        author,
-        constraints,
-        inputFormat,
-        outputFormat,
-        sampleInput,
-        sampleOutput,
-        explanation
-    } = problem;
+  if (!problem) {
+    return <div>No problem data available</div>;
+  }
 
-    return (
-        <div className="container">
-            <h2>Problem Details</h2>
-            <p><strong>Problem Name:</strong> {problemName}</p>
-            <p><strong>Description:</strong> {description}</p>
-            <p><strong>Difficulty:</strong> {difficulty}</p>
-            <p><strong>Submissions:</strong> {submissions}</p>
-            <p><strong>Marks:</strong> {marks}</p>
-            <p><strong>Author:</strong> {author}</p>
-            <p><strong>Constraints:</strong> {constraints}</p>
-            <p><strong>Input Format:</strong> {inputFormat}</p>
-            <p><strong>Output Format:</strong> {outputFormat}</p>
-            <p><strong>Sample Input:</strong> {sampleInput}</p>
-            <p><strong>Sample Output:</strong> {sampleOutput}</p>
-            <p><strong>Explanation:</strong> {explanation}</p>
-        </div>
-    );
+  return (
+    <div>
+      <h2>{problem.problemName}</h2>
+      <p><strong>Description:</strong> {problem.description}</p>
+      <p><strong>Difficulty:</strong> {problem.difficulty}</p>
+      <p><strong>Submissions:</strong> {problem.submissions}</p>
+      <p><strong>Marks:</strong> {problem.marks}</p>
+      <p><strong>Author:</strong> {problem.author}</p>
+      <p><strong>Constraints:</strong> {problem.constraints}</p>
+      <p><strong>Input Format:</strong> {problem.inputFormat}</p>
+      <p><strong>Output Format:</strong> {problem.outputFormat}</p>
+      <p><strong>Sample Input:</strong> {problem.sampleInput}</p>
+      <p><strong>Sample Output:</strong> {problem.sampleOutput}</p>
+      <p><strong>Explanation:</strong> {problem.explanation}</p>
+    </div>
+  );
 };
 
-export default ProblemDetails;
+export default ProblemDetail;

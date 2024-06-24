@@ -2,6 +2,7 @@
 
 import React, { useContext } from 'react';
 import ProblemContext from './problemContext'; // Correct import path
+import { Link } from 'react-router-dom';
 
 const FetchProblem = () => {
   const { problems } = useContext(ProblemContext);
@@ -17,7 +18,11 @@ const FetchProblem = () => {
         {problems.map((problem) => (
           <li key={problem._id}>
             <div>
-              <h3>{problem.problemName}</h3>
+              <h3>
+                <Link to={`/problem/${problem._id}`}>
+                  {problem.problemName}
+                </Link>
+              </h3>
               {/* Add more details as needed */}
             </div>
           </li>

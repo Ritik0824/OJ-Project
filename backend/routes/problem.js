@@ -1,9 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Problem = require("../models/ProblemModel");
+const problemRouter = require('./problemid');
 
 const app = express();
 app.use(express.json()); // Middleware for parsing JSON
+app.use('/', problemRouter);
 
 // Ensure your DB connection is properly imported and used
 const { DBConnection } = require('../database/db');
