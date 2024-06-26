@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaSearch, FaComments, FaBell, FaTh, FaUser, FaAngleDown } from 'react-icons/fa';
-
+import { useSelector } from 'react-redux';
 
 const Navbar = ({ currentPage, handleSignOut, navigate }) => {
+  const user = useSelector(state => state.Auth.user); // Adjusted to correctly access user information
   const [showDropdown, setShowDropdown] = useState(false);
 
   const toggleDropdown = () => {
@@ -18,12 +19,10 @@ const Navbar = ({ currentPage, handleSignOut, navigate }) => {
     <nav className="bg-gray-800 px-4 py-2 flex justify-start items-center relative">
       <img className="h-8 w-auto" src="your-logo.svg" alt="Your Company Logo" />
       <div className="flex flex-nowrap overflow-hidden space-x-4 items-center ml-4">
-        
         <Link
           to="/get-problem"
           className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'problem' ? 'border-b-2 border-green-500 ' : ''}`}
         >
-          
           Problems
         </Link>
         <Link
@@ -44,20 +43,24 @@ const Navbar = ({ currentPage, handleSignOut, navigate }) => {
         >
           Blogs
         </Link>
-        <Link
-          to="/problem/new"
-          className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'new' ? 'border-b-2 border-green-500' : ''}`}
-        >
-          Add Problem
-        </Link>
+        {user && user.role === 'admin' && (
+          <>
+            <Link
+              to="/problem/new"
+              className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'new' ? 'border-b-2 border-green-500' : ''}`}
+            >
+              Add Problem
+            </Link>
+            <button
+              onClick={handleUpdate}
+              className="text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md"
+            >
+              Update Problem
+            </button>
+          </>
+        )}
       </div>
       <div className="flex items-center ml-auto space-x-4">
-        <button
-          onClick={handleUpdate}
-          className="text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md"
-        >
-          Update Problem
-        </button>
         <div className="relative">
           <input
             className="rounded-md bg-gray-700 px-2 py-1 text-white pl-10"
