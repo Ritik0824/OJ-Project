@@ -1,22 +1,37 @@
 import React from 'react';
 import './index.css';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/login/Login';
-import Dashboard from './components/dashboard/Dashboard';
-import Signup from './components/signup/Signup';
+import { Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Home from './pages/Home';
+import Register from './pages/Register';
+import Admin from './pages/Admin';
+import AdminLayout from './Layout/AdminLayout';
+import UserLayout from './Layout/UserLayout';
+import PublicLayouts from './Layout/PublicLayout';
 import ProblemDetail from './components/problems/problemdetails';
+import UpdatedProblem from './components/problems/updateProblem';
+
 
 const App = () => {
   
   return (
-    <Routes>
-      <Route path='/login' element={<Login />} />
-      <Route path='/register' element={<Signup />} />
-      <Route path='/dashboard/*' element={<Dashboard />} />
-      <Route path='/problem/:id' element={<ProblemDetail />} />
-      <Route path="*" element={<Navigate to="/register" />} />
-    </Routes>
+      <Routes>
+        <Route path='/' element={<UserLayout />}>
+          <Route index element={<Home />} />
+        </Route>
+        <Route path='/admin' element={<AdminLayout />}>
+          <Route index element={<Admin />} />
+        </Route>
+        <Route path='/' element={<PublicLayouts />}>
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+        </Route>
+        <Route path='/*' element={<Home />} />
+        <Route path='/api/get-problem/:id' element={<ProblemDetail />} />
+        <Route path="/update-problem/" element={<UpdatedProblem />} />
+       
+      </Routes>
   );
 };
 

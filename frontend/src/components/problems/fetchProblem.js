@@ -1,11 +1,10 @@
-// FetchProblem.js
-
 import React, { useContext } from 'react';
-import ProblemContext from './problemContext'; // Correct import path
+import ProblemContext from './problemContext';
 import { Link } from 'react-router-dom';
 
 const FetchProblem = () => {
   const { problems } = useContext(ProblemContext);
+  console.log("problem page");
 
   if (!problems || problems.length === 0) {
     return <div>Loading...</div>;
@@ -19,11 +18,10 @@ const FetchProblem = () => {
           <li key={problem._id}>
             <div>
               <h3>
-                <Link to={`/problem/${problem._id}`}>
+                <Link to={`/get-problem/${problem._id}`}>
                   {problem.problemName}
                 </Link>
               </h3>
-              {/* Add more details as needed */}
             </div>
           </li>
         ))}

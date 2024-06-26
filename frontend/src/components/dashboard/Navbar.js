@@ -1,69 +1,63 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaSearch, FaComments, FaBell, FaTh, FaUser, FaAngleDown } from 'react-icons/fa';
-import { getAuth, signOut } from 'firebase/auth'; 
-import { app } from '../../firebase'; 
-import { useNavigate } from 'react-router-dom';
 
-const Navbar = () => {
-  const location = useLocation();
-  const currentPage = location.pathname.split('/').pop();
+
+const Navbar = ({ currentPage, handleSignOut, navigate }) => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const navigate = useNavigate();
-
-  const handleSignOut = () => {
-    const auth = getAuth(app); 
-    signOut(auth)
-      .then(() => {
-        console.log('User signed out successfully');
-        navigate('/login')
-        // Redirect or perform other actions after sign-out
-      })
-      .catch((error) => {
-        console.error('Error signing out:', error.message);
-      });
-  };
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
+  };
+
+  const handleUpdate = () => {
+    navigate('/update-problem');
   };
 
   return (
     <nav className="bg-gray-800 px-4 py-2 flex justify-start items-center relative">
       <img className="h-8 w-auto" src="your-logo.svg" alt="Your Company Logo" />
       <div className="flex flex-nowrap overflow-hidden space-x-4 items-center ml-4">
+        
         <Link
-          to="/dashboard/problem"
+          to="/get-problem"
           className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'problem' ? 'border-b-2 border-green-500 ' : ''}`}
         >
+          
           Problems
         </Link>
         <Link
-          to="/dashboard/course"
+          to="/course"
           className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'course' ? 'border-b-2 border-green-500' : ''}`}
         >
           Courses
         </Link>
         <Link
-          to="/dashboard/contest"
+          to="/contest"
           className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'contest' ? 'border-b-2 border-green-500' : ''}`}
         >
           Compete
         </Link>
         <Link
-          to="/dashboard/blog"
+          to="/blog"
           className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'blog' ? 'border-b-2 border-green-500' : ''}`}
         >
           Blogs
         </Link>
         <Link
-          to="/dashboard/problem/new"
+          to="/problem/new"
           className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'new' ? 'border-b-2 border-green-500' : ''}`}
         >
           Add Problem
-        </Link> {/* Add this link */}
+        </Link>
       </div>
       <div className="flex items-center ml-auto space-x-4">
+        <button
+          onClick={handleUpdate}
+          className="text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md"
+        >
+          Update Problem
+        </button>
         <div className="relative">
           <input
             className="rounded-md bg-gray-700 px-2 py-1 text-white pl-10"
@@ -82,7 +76,7 @@ const Navbar = () => {
             <div className="absolute right-0 mt-2 bg-gray-800 rounded shadow-md">
               <ul className="p-2">
                 <li className="text-white hover:bg-gray-700 p-2 rounded cursor-pointer">
-                  <Link to="/dashboard/profile">Profile</Link>
+                  <Link to="/home/profile">Profile</Link>
                 </li>
                 <li className="text-white hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={handleSignOut}>
                   Sign Out

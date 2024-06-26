@@ -21,7 +21,7 @@ const ProblemForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await Axios.post('http://localhost:8000/problem', {
+            const response = await Axios.post('http://localhost:8000/api/problem', {
                 problemName,
                 description,
                 difficulty,

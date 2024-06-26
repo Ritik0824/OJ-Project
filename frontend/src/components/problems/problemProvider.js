@@ -8,7 +8,8 @@ const ProblemProvider = ({ children }) => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const response = await Axios.get('http://localhost:8000/get-problem');
+        console.log("Fetching problems");
+        const response = await Axios.get('http://localhost:8000/api/get-problem');
         console.log('API Response:', response.data);
 
         // Correctly access the problems array
@@ -30,8 +31,10 @@ const ProblemProvider = ({ children }) => {
   }, []);
 
   const addProblem = (newProblem) => {
+    console.log("Adding problem:", newProblem);
     setProblems((prevProblems) => [...prevProblems, newProblem]);
   };
+
 
   return (
     <ProblemContext.Provider value={{ problems, addProblem }}>

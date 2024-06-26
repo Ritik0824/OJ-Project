@@ -12,9 +12,16 @@ const ProblemDetail = () => {
     const fetchProblem = async () => {
       try {
         console.log('Fetching problem with ID:', id); // Debug line
-        const response = await Axios.get(`http://localhost:8000/problem/${id}`);
+        const response = await Axios.get(`http://localhost:8000/api/get-problem/${id}`);
         console.log('API response:', response.data); // Debug line
-        setProblem(response.data.data); // Access the 'data' object inside the response
+
+        // Log the exact structure of the response to understand the nesting
+        console.log('Problem data:', response.data.data);
+
+        // Log the entire data object
+        console.log('Entire data object:', response.data);
+
+        setProblem(response.data.data.problem); // Adjust this path based on the actual response structure
         setLoading(false);
       } catch (error) {
         console.error('Error fetching problem:', error);
