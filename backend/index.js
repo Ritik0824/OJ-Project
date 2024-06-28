@@ -11,7 +11,7 @@ const ProblemRoutes = require('./routes/ProblemRoute.js');
 const PORT=process.env.PORT || 8000
 // Middlewares
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
 app.use(cookieParser());
 
 app.use(cors({
