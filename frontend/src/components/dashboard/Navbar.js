@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaSearch, FaComments, FaBell, FaTh, FaUser, FaAngleDown } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
+import logo from './logo.png';
 
 const Navbar = ({ currentPage, handleSignOut, navigate }) => {
-  const user = useSelector(state => state.Auth.user); // Adjusted to correctly access user information
+  const user = useSelector(state => state.Auth.user);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const toggleDropdown = () => {
@@ -16,8 +17,10 @@ const Navbar = ({ currentPage, handleSignOut, navigate }) => {
   };
 
   return (
-    <nav className="bg-gray-800 px-4 py-2 flex justify-start items-center relative">
-      <img className="h-8 w-auto" src="your-logo.svg" alt="Your Company Logo" />
+    <nav className="bg-blue-800 px-4 py-2 flex justify-start items-center relative">
+      <Link to="/" className="flex items-center">
+        <img className="h-8 w-auto" src={logo} alt="Your Company Logo" />
+      </Link>
       <div className="flex flex-nowrap overflow-hidden space-x-4 items-center ml-4">
         <Link
           to="/get-problem"

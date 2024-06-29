@@ -9,7 +9,7 @@ export default function PublicLayouts() {
     useEffect(()=>{
     if (user) {
         if (user.role === 'admin') {
-            navigate('/admin');  // Redirect admin to the admin-specific area
+            navigate('/');  // Redirect admin to the admin-specific area
         } else {
             navigate('/');      // Redirect logged-in non-admin users to the general home page
         }

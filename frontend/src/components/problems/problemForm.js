@@ -56,102 +56,143 @@ const ProblemForm = () => {
     };
 
     return (
-        <div className="container">
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="problemName">Problem Name: </label>
-                <input
-                    type="text"
-                    id="problemName"
-                    value={problemName}
-                    onChange={(e) => setProblemName(e.target.value)}
-                /><br/><br/>
+        <div className="max-w-7xl mx-auto p-6 bg-white rounded-md shadow-md">
+            <h2 className="text-2xl font-bold mb-6 text-center">Add New Problem</h2>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label htmlFor="problemName" className="block text-sm font-medium text-gray-700">Problem Name</label>
+                    <input
+                        type="text"
+                        id="problemName"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={problemName}
+                        onChange={(e) => setProblemName(e.target.value)}
+                    />
+                </div>
 
-                <label htmlFor="description">Description: </label>
-                <textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                /><br/><br/>
+                <div>
+                    <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">Difficulty</label>
+                    <select
+                        id="difficulty"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={difficulty}
+                        onChange={(e) => setDifficulty(e.target.value)}
+                    >
+                        <option value="">Select Difficulty</option>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
 
-                <label htmlFor="difficulty">Difficulty: </label>
-                <select
-                    id="difficulty"
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value)}
-                >
-                    <option value="">Select Difficulty</option>
-                    <option value="Easy">Easy</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Hard">Hard</option>
-                </select><br/><br/>
+                <div>
+                    <label htmlFor="submissions" className="block text-sm font-medium text-gray-700">Submissions</label>
+                    <input
+                        type="number"
+                        id="submissions"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={submissions}
+                        onChange={(e) => setSubmissions(parseInt(e.target.value))}
+                    />
+                </div>
 
-                <label htmlFor="submissions">Submissions: </label>
-                <input
-                    type="number"
-                    id="submissions"
-                    value={submissions}
-                    onChange={(e) => setSubmissions(parseInt(e.target.value))}
-                /><br/><br/>
+                <div>
+                    <label htmlFor="marks" className="block text-sm font-medium text-gray-700">Marks</label>
+                    <input
+                        type="number"
+                        id="marks"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={marks}
+                        onChange={(e) => setMarks(parseInt(e.target.value))}
+                    />
+                </div>
 
-                <label htmlFor="marks">Marks: </label>
-                <input
-                    type="number"
-                    id="marks"
-                    value={marks}
-                    onChange={(e) => setMarks(parseInt(e.target.value))}
-                /><br/><br/>
+                <div>
+                    <label htmlFor="author" className="block text-sm font-medium text-gray-700">Author</label>
+                    <input
+                        type="text"
+                        id="author"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={author}
+                        onChange={(e) => setAuthor(e.target.value)}
+                    />
+                </div>
 
-                <label htmlFor="author">Author: </label>
-                <input
-                    type="text"
-                    id="author"
-                    value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
-                /><br/><br/>
+                <div className="md:col-span-2">
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea
+                        id="description"
+                        className="mt-1 block w-full h-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                    />
+                </div>
 
-                <label htmlFor="constraints">Constraints: </label>
-                <textarea
-                    id="constraints"
-                    value={constraints}
-                    onChange={(e) => setConstraints(e.target.value)}
-                /><br/><br/>
+                <div className="md:col-span-2">
+                    <label htmlFor="constraints" className="block text-sm font-medium text-gray-700">Constraints</label>
+                    <textarea
+                        id="constraints"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={constraints}
+                        onChange={(e) => setConstraints(e.target.value)}
+                    />
+                </div>
 
-                <label htmlFor="inputFormat">Input Format: </label>
-                <textarea
-                    id="inputFormat"
-                    value={inputFormat}
-                    onChange={(e) => setInputFormat(e.target.value)}
-                /><br/><br/>
+                <div>
+                    <label htmlFor="inputFormat" className="block text-sm font-medium text-gray-700">Input Format</label>
+                    <textarea
+                        id="inputFormat"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={inputFormat}
+                        onChange={(e) => setInputFormat(e.target.value)}
+                    />
+                </div>
 
-                <label htmlFor="outputFormat">Output Format: </label>
-                <textarea
-                    id="outputFormat"
-                    value={outputFormat}
-                    onChange={(e) => setOutputFormat(e.target.value)}
-                /><br/><br/>
+                <div>
+                    <label htmlFor="outputFormat" className="block text-sm font-medium text-gray-700">Output Format</label>
+                    <textarea
+                        id="outputFormat"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={outputFormat}
+                        onChange={(e) => setOutputFormat(e.target.value)}
+                    />
+                </div>
 
-                <label htmlFor="sampleInput">Sample Input: </label>
-                <textarea
-                    id="sampleInput"
-                    value={sampleInput}
-                    onChange={(e) => setSampleInput(e.target.value)}
-                /><br/><br/>
+                <div>
+                    <label htmlFor="sampleInput" className="block text-sm font-medium text-gray-700">Sample Input</label>
+                    <textarea
+                        id="sampleInput"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={sampleInput}
+                        onChange={(e) => setSampleInput(e.target.value)}
+                    />
+                </div>
 
-                <label htmlFor="sampleOutput">Sample Output: </label>
-                <textarea
-                    id="sampleOutput"
-                    value={sampleOutput}
-                    onChange={(e) => setSampleOutput(e.target.value)}
-                /><br/><br/>
+                <div>
+                    <label htmlFor="sampleOutput" className="block text-sm font-medium text-gray-700">Sample Output</label>
+                    <textarea
+                        id="sampleOutput"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={sampleOutput}
+                        onChange={(e) => setSampleOutput(e.target.value)}
+                    />
+                </div>
 
-                <label htmlFor="explanation">Explanation: </label>
-                <textarea
-                    id="explanation"
-                    value={explanation}
-                    onChange={(e) => setExplanation(e.target.value)}
-                /><br/><br/>
+                <div className="md:col-span-2">
+                    <label htmlFor="explanation" className="block text-sm font-medium text-gray-700">Explanation</label>
+                    <textarea
+                        id="explanation"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        value={explanation}
+                        onChange={(e) => setExplanation(e.target.value)}
+                    />
+                </div>
 
-                <button type="submit">Add New Problem</button>
+                <div className="md:col-span-2 text-center">
+                    <button type="submit" className="mt-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        Add New Problem
+                    </button>
+                </div>
             </form>
         </div>
     );

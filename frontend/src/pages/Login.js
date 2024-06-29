@@ -24,10 +24,10 @@ export default function Login() {
         const { user, message } = data;
         if (user.role === 'admin') {
           navigate('/', { replace: true }); // Redirect to the root URL and replace history
-          window.location.href = '/'; // Fallback redirection using window.location
+           // Fallback redirection using window.location
         } else if (user.role === 'user') {
           navigate('/', { replace: true }); // Redirect to the root URL and replace history
-          window.location.href = '/'; // Fallback redirection using window.location
+           // Fallback redirection using window.location
         }
         toast.success(message);
         dispatch(SetUser(user));
