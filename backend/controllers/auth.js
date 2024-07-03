@@ -1,6 +1,8 @@
 const UserModel = require("../models/User");
+const googleUserModel = require("../models/googleUserModel");
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
+const { listUsers } = require('../firebaseAdmin.js');
 const register=async(req,res)=>{
     try {
         const {name,email,password}=req.body
@@ -15,6 +17,7 @@ const register=async(req,res)=>{
         })
         
           await newUser.save()
+          await listUsers();
 
           res.status(200).json({message:"user register successfully",newUser})
     } catch (error) {
@@ -47,6 +50,7 @@ const Login=async(req,res)=>{
                     maxAge: 3600000,
                     
                 })
+                await listUsers();
               res.status(200).json({success:true,message:"Login successfully",user,token})
 
     } catch (error) {
@@ -79,4 +83,34 @@ const Login=async(req,res)=>{
             }
      }
 
-module.exports = {register,Login,Logout,CheckUser};
+     const getUser=async(req,res)=>{
+        try {
+            const savedGetUser = await UserModel.find({});
+            res.status(200).json({
+                status: 'Success',
+                data: { savedGetUser }
+            });
+        } catch (err) {
+            res.status(500).json({
+                status: 'Failed',
+                message: err.message
+            });
+        }
+     }
+
+     const getGoogleuser = async(req, res) => {
+        try {
+            const savedGetUser = await googleUserModel.find({});
+            res.status(200).json({
+                status: 'Success',
+                data: { savedGetUser }
+            });
+        } catch (err) {
+            res.status(500).json({
+                status: 'Failed',
+                message: err.message
+            });
+        }
+     }
+
+module.exports = {register,Login,Logout,CheckUser, getUser, getGoogleuser};

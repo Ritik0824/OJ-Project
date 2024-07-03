@@ -8,6 +8,7 @@ dotenv.config();
 const AuthRoutes = require('./routes/Auth.js');
 const AdminRoutes = require('./routes/AdminRoutes.js');
 const ProblemRoutes = require('./routes/ProblemRoute.js');
+const SubmissionRoutes = require('./routes/SubmissionRoute.js');
 const PORT=process.env.PORT || 8000
 // Middlewares
 app.use(express.json());

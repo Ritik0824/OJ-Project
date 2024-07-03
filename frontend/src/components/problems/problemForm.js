@@ -15,6 +15,9 @@ const ProblemForm = () => {
     const [sampleInput, setSampleInput] = useState('');
     const [sampleOutput, setSampleOutput] = useState('');
     const [explanation, setExplanation] = useState('');
+    const [hiddenTestCases, setHiddenTestCases] = useState([
+        { input: '', expectedOutput: '' }
+    ]);
 
     const { addProblem } = useContext(ProblemContext);
 
@@ -33,7 +36,8 @@ const ProblemForm = () => {
                 outputFormat,
                 sampleInput,
                 sampleOutput,
-                explanation
+                explanation,
+                hiddenTestCases
             });
             addProblem(response.data);
 
@@ -50,13 +54,24 @@ const ProblemForm = () => {
             setSampleInput('');
             setSampleOutput('');
             setExplanation('');
+            setHiddenTestCases([{ input: '', expectedOutput: '' }]);
         } catch (error) {
             console.error('Error adding problem:', error);
         }
     };
 
+    const handleAddTestCase = () => {
+        setHiddenTestCases([...hiddenTestCases, { input: '', expectedOutput: '' }]);
+    };
+
+    const handleTestCaseChange = (index, field, value) => {
+        const updatedTestCases = [...hiddenTestCases];
+        updatedTestCases[index][field] = value;
+        setHiddenTestCases(updatedTestCases);
+    };
+
     return (
-        <div className="max-w-7xl mx-auto p-6 bg-white rounded-md shadow-md">
+        <div className="max-w-full mx-auto p-6 bg-white rounded-md shadow-md">
             <h2 className="text-2xl font-bold mb-6 text-center">Add New Problem</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -122,7 +137,7 @@ const ProblemForm = () => {
                     <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
                     <textarea
                         id="description"
-                        className="mt-1 block w-full h-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                     />
@@ -186,6 +201,36 @@ const ProblemForm = () => {
                         value={explanation}
                         onChange={(e) => setExplanation(e.target.value)}
                     />
+                </div>
+
+                <div className="md:col-span-2">
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">Hidden Test Cases</h3>
+                    {hiddenTestCases.map((testCase, index) => (
+                        <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor={`input${index}`} className="block text-sm font-medium text-gray-700">Input</label>
+                                <textarea
+                                    id={`input${index}`}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    value={testCase.input}
+                                    onChange={(e) => handleTestCaseChange(index, 'input', e.target.value)}
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor={`expectedOutput${index}`} className="block text-sm font-medium text-gray-700">Expected Output</label>
+                                <textarea
+                                    id={`expectedOutput${index}`}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    value={testCase.expectedOutput}
+                                    onChange={(e) => handleTestCaseChange(index, 'expectedOutput', e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    ))}
+                    <button type="button" onClick={handleAddTestCase} className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        Add Hidden Test Case
+                    </button>
                 </div>
 
                 <div className="md:col-span-2 text-center">

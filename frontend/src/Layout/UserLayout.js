@@ -5,12 +5,13 @@ import { useSelector } from 'react-redux';
 export default function UserLayout() {
     const user = useSelector((state) => state.Auth.user);
     const navigate = useNavigate();
+    const googleUser = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
-        if (!user) {
+        if (!user && !googleUser) {
             navigate('/login');
         }
-    }, [user, navigate]); // Include navigate in the dependency array
+    }, [user, googleUser, navigate]);
 
     return (
         <Outlet />

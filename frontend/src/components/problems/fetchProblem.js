@@ -12,9 +12,9 @@ const FetchProblem = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-100 min-h-screen">
       <h2 className="text-3xl font-bold mb-6 text-center">Problem Set</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
         {problems.map((problem) => (
-          <div key={problem._id} className="bg-white p-6 rounded-lg shadow-md">
+          <div key={problem._id} className="bg-white p-6 rounded-lg shadow-md transform transition-transform duration-300 hover:scale-105">
             <h3 className="text-xl font-semibold mb-2">
               <Link to={`/get-problem/${problem._id}`} className="text-decoration-none text-black hover:text-blue-500">
                 {problem.problemName}

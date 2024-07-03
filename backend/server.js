@@ -1,38 +1,62 @@
 const express = require('express');
 const { generateFile } = require('./generateFile');
+const { generateInputFile } = require('./generateInputFile');
 const { executeCpp } = require('./executeCpp');
 const dotenv = require('dotenv');
+const Problem = require('./models/ProblemModel');
+const { DBConnection } = require('./database/db.js');
+const Submission = require('./models/SubmissionModel');
+const { listUsers } = require('./firebaseAdmin.js');
+
 dotenv.config();
 const app = express();
 const cors = require('cors');
-const COMPILER_PORT=process.env.COMPILER_PORT || 4000
+const COMPILER_PORT = process.env.COMPILER_PORT || 4000
+const SubmissionRoutes = require('./routes/SubmissionRoute.js');
+const AuthRoutes = require('./routes/Auth.js');
 
-//middleware
+// Initialize database
+DBConnection();
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/api/auth',AuthRoutes)
+app.use('/api/submissions', SubmissionRoutes);
+
 app.get('/', (req, res) => {
     res.json({
-        online : "compiler"
+        online: "compiler"
     });
 });
 
-app.post('/run', async (req, res) => {
-    const { language='cpp',code } = req.body;
-    if(code === undefined){
-        return res.status(400).json({ success: false, message: 'Empty Code body' });
+app.post("/run", async (req, res) => {
+    console.log("running /run request");
+    const { language = 'cpp', code, input } = req.body;
+    if (code === undefined) {
+        return res.status(404).json({ success: false, error: "Empty code!" });
     }
 
     try {
-        const filePath =  generateFile(language, code);
-        const output = await executeCpp(filePath);
-        res.send({ filePath, output});
+        const filePath = await generateFile(language, code);
+        const inputPath = await generateInputFile(input);
+        const output = await executeCpp(filePath, inputPath);
+        res.json({ output });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error: ',error });
+        res.status(500).json({ error: error });
     }
 });
 
-app.listen(4000, () => {
+app.get('/sync-google-users', async (req, res) => {
+    try {
+      await listUsers();
+      res.status(200).send('Users synchronized successfully');
+    } catch (error) {
+      res.status(500).send('Error synchronizing users: ' + error.message);
+    }
+  });
+
+app.listen(COMPILER_PORT, () => {
     console.log(`Server started on port ${COMPILER_PORT}`);
 });

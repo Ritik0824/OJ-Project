@@ -4,6 +4,9 @@ import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { SetUser } from '../redux/AuthSlice';
 import { post } from '../services/apiEndpoint';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleAuthProvider } from '../firebase';
+import axios from 'axios';
 
 export default function Login() {
   const user = useSelector((state) => state.Auth);
@@ -31,10 +34,27 @@ export default function Login() {
         }
         toast.success(message);
         dispatch(SetUser(user));
+        localStorage.setItem('email', email);
+        console.log('Email stored in local storage:', email);
       }
     } catch (error) {
       console.log('Login error:', error);
       toast.error('Failed to login. Please try again.');
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleAuthProvider);
+      await axios.get('http://localhost:4000/sync-google-users');
+      console.log('Login successful:', result);
+      localStorage.setItem('token', result.user.accessToken);
+      localStorage.setItem('user', JSON.stringify(result.user));
+      localStorage.setItem('email', result.user.email);
+      console.log('Navigating to /');
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.log('Login failed:', error);
     }
   };
 
@@ -87,8 +107,8 @@ export default function Login() {
         <div className="social-buttons">
           <button
             type="button"
-           // onClick={loginWithGoogle}
-            className="google w-full h-10 px-4 border border-gray-300 rounded-md flex items-center justify-center text-sm hover:bg-gray-200 transition duration-300"
+           onClick={loginWithGoogle}
+            className="google-login-btn w-full h-10 px-4 border border-gray-300 rounded-md flex items-center justify-center text-sm hover:bg-gray-200 transition duration-300"
           >
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png"

@@ -1,15 +1,39 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaSearch, FaComments, FaBell, FaTh, FaUser, FaAngleDown } from 'react-icons/fa';
-import { useSelector } from 'react-redux';
-import logo from './logo.png';
+import { useSelector, useDispatch } from 'react-redux';
+import logo from '../dashboard/Logo.png';
+import { Logout } from '../../redux/AuthSlice';
+import { toast } from 'react-toastify';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase';
+import { post } from '../../services/apiEndpoint';
 
-const Navbar = ({ currentPage, handleSignOut, navigate }) => {
+const Navbar = ({ currentPage }) => {
   const user = useSelector(state => state.Auth.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const response = await post('/api/auth/logout');
+      await signOut(auth);
+      if (response.status === 200) {
+        dispatch(Logout());
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('email'); 
+        navigate('/login');
+        toast.success('Successfully logged out');
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleUpdate = () => {
@@ -17,14 +41,14 @@ const Navbar = ({ currentPage, handleSignOut, navigate }) => {
   };
 
   return (
-    <nav className="bg-blue-800 px-4 py-2 flex justify-start items-center relative">
+    <nav className="bg-custom-dark-blue px-4 py-2 flex justify-start items-center relative">
       <Link to="/" className="flex items-center">
-        <img className="h-8 w-auto" src={logo} alt="Your Company Logo" />
+        <img className="h-8 w-auto transform transition-transform duration-300 hover:scale-110" src={logo} alt="Your Company Logo" />
       </Link>
       <div className="flex flex-nowrap overflow-hidden space-x-4 items-center ml-4">
         <Link
           to="/get-problem"
-          className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'problem' ? 'border-b-2 border-green-500 ' : ''}`}
+          className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'get-problem' ? 'border-b-2 border-green-500 ' : ''}`}
         >
           Problems
         </Link>

@@ -14,6 +14,9 @@ import ProblemForm from '../components/problems/problemForm';
 import UpdatedProblem from '../components/problems/updateProblem';
 import FetchProblem from '../components/problems/fetchProblem';
 import { Routes, Route } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
+import { toast } from 'react-toastify';
 
 const Home = () => {
   const user = useSelector((state) => state.Auth.user);
@@ -27,9 +30,14 @@ const Home = () => {
   const handleLogout = async () => {
     try {
       const response = await post('/api/auth/logout');
+      await signOut(auth);
       if (response.status === 200) {
         dispatch(Logout());
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('email'); 
         navigate('/login');
+        toast.success('Successfully logged out');
       }
     } catch (error) {
       console.log(error);
