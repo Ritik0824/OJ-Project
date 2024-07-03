@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaComments, FaBell, FaTh, FaUser, FaAngleDown } from 'react-icons/fa';
+import { FaUser, FaAngleDown, FaPlus, FaEdit, FaBook, FaTrophy, FaBlog, FaClipboardList } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import logo from '../dashboard/Logo.png';
 import { Logout } from '../../redux/AuthSlice';
@@ -41,81 +41,67 @@ const Navbar = ({ currentPage }) => {
   };
 
   return (
-    <nav className="bg-custom-dark-blue px-4 py-2 flex justify-start items-center relative">
+    <nav className="bg-gradient-to-r from-gray-900 to-black px-6 py-2 flex justify-between items-center shadow-lg">
       <Link to="/" className="flex items-center">
-        <img className="h-8 w-auto transform transition-transform duration-300 hover:scale-110" src={logo} alt="Your Company Logo" />
+        <img className="h-12 w-auto transform transition-transform duration-300 hover:scale-110" src={logo} alt="Your Company Logo" />
       </Link>
-      <div className="flex flex-nowrap overflow-hidden space-x-4 items-center ml-4">
+      <div className="flex space-x-4 items-center ml-4">
         <Link
           to="/get-problem"
-          className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'get-problem' ? 'border-b-2 border-green-500 ' : ''}`}
+          className={`text-decoration-none text-white hover:text-gray-300 transition duration-300 px-2 py-1 rounded ${currentPage === 'get-problem' ? 'bg-purple-900' : ''}`}
         >
-          Problems
+          <FaClipboardList className="inline-block mr-1" /> Problems
         </Link>
         <Link
           to="/course"
-          className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'course' ? 'border-b-2 border-green-500' : ''}`}
+          className={`text-decoration-none text-white hover:text-gray-300 transition duration-300 px-2 py-1 rounded ${currentPage === 'course' ? 'bg-purple-900' : ''}`}
         >
-          Courses
+          <FaBook className="inline-block mr-1" /> Courses
         </Link>
         <Link
           to="/contest"
-          className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'contest' ? 'border-b-2 border-green-500' : ''}`}
+          className={`text-decoration-none text-white hover:text-gray-300 transition duration-300 px-2 py-1 rounded ${currentPage === 'contest' ? 'bg-purple-900' : ''}`}
         >
-          Compete
+          <FaTrophy className="inline-block mr-1" /> Compete
         </Link>
         <Link
           to="/blog"
-          className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'blog' ? 'border-b-2 border-green-500' : ''}`}
+          className={`text-decoration-none text-white hover:text-gray-300 transition duration-300 px-2 py-1 rounded ${currentPage === 'blog' ? 'bg-purple-900' : ''}`}
         >
-          Blogs
+          <FaBlog className="inline-block mr-1" /> Blogs
         </Link>
         {user && user.role === 'admin' && (
           <>
             <Link
               to="/problem/new"
-              className={`text-white hover:text-gray-300 pb-1 text-decoration-none ${currentPage === 'new' ? 'border-b-2 border-green-500' : ''}`}
+              className={`text-decoration-none text-white hover:text-gray-300 transition duration-300 px-2 py-1 rounded ${currentPage === 'new' ? 'bg-purple-900' : ''}`}
             >
-              Add Problem
+              <FaPlus className="inline-block mr-1" /> Add Problem
             </Link>
             <button
               onClick={handleUpdate}
-              className="text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md"
+              className="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md transition duration-300 flex items-center"
             >
-              Update Problem
+              <FaEdit className="inline-block mr-1" /> Update Problem
             </button>
           </>
         )}
       </div>
-      <div className="flex items-center ml-auto space-x-4">
-        <div className="relative">
-          <input
-            className="rounded-md bg-gray-700 px-2 py-1 text-white pl-10"
-            type="text"
-            placeholder="Search"
-            style={{ textIndent: '20px' }}
-          />
-          <FaSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        </div>
-        <FaComments className="text-white hover:text-gray-300" />
-        <FaBell className="text-white hover:text-gray-300" />
-        <FaTh className="text-white hover:text-gray-300" />
-        <div className="relative cursor-pointer" onClick={toggleDropdown}>
-          <FaUser className="text-white hover:text-gray-300" />
-          {showDropdown && (
-            <div className="absolute right-0 mt-2 bg-gray-800 rounded shadow-md">
-              <ul className="p-2">
-                <li className="text-white hover:bg-gray-700 p-2 rounded cursor-pointer">
-                  <Link to="/home/profile">Profile</Link>
-                </li>
-                <li className="text-white hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={handleSignOut}>
-                  Sign Out
-                </li>
-              </ul>
-            </div>
-          )}
-          <FaAngleDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        </div>
+      <div className="relative cursor-pointer" onClick={toggleDropdown}>
+        <FaUser className="text-white hover:text-gray-300 transition duration-300" />
+        {showDropdown && (
+          <div className="absolute right-0 mt-2 bg-gray-800 rounded shadow-md">
+            <ul className="p-2">
+              <li className="text-white hover:bg-gray-700 p-2 rounded cursor-pointer">
+                <Link to="/home/profile">Profile</Link>
+              </li>
+              <li className="text-white hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={handleSignOut}>
+                Sign Out
+              </li>
+            </ul>
+          </div>
+        )}
+        <FaAngleDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
       </div>
     </nav>
   );

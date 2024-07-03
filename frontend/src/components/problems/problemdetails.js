@@ -1,9 +1,27 @@
+
+
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { useParams } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
+import { FaPlay, FaPaperPlane, FaTerminal } from 'react-icons/fa'; // Import icons
+
+const themeColor = 'blue'; // Set the theme color for your page
+
+
+const SubmissionRow = ({ submission }) => {
+  return (
+    <tr>
+      <td className="border px-4 py-2">{submission.userId ? submission.userId._id : 'Anonymous'}</td>
+      <td className="border px-4 py-2">{submission.problemId}</td>
+      <td className="border px-4 py-2">{submission.language}</td>
+      <td className="border px-4 py-2">{submission.status}</td>
+      <td className="border px-4 py-2">{submission.submissionDate}</td>
+    </tr>
+  );
+};
 
 const ProblemDetail = () => {
   const { id } = useParams();
@@ -16,9 +34,11 @@ const ProblemDetail = () => {
   const [output, setOutput] = useState('');
   const [activeTab, setActiveTab] = useState('input');
   const [consoleOpen, setConsoleOpen] = useState(false);
-  const [userId, setUserId] = useState(null); // State to store current user's ID
-  const [users, setUsers] = useState([]); // State to store users
-  const [googleUser, setGoogleUser] = useState([]); // State to store Google user data
+  const [activeSection, setActiveSection] = useState('problem');
+  const [userId, setUserId] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [googleUser, setGoogleUser] = useState([]);
+  const [allSubmissions, setAllSubmissions] = useState([]);
 
   useEffect(() => {
     const fetchProblem = async () => {
@@ -38,6 +58,27 @@ const ProblemDetail = () => {
 
     if (id) {
       fetchProblem();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    const fetchSubmission = async () => {
+      try {
+        const response = await Axios.get(`http://localhost:4000/api/submissions/${id}`);
+        console.log('API Submissions:', response.data);
+  
+        if (response.data.success) {
+          setAllSubmissions(response.data.submissions);
+        } else {
+          console.error('Failed to fetch submissions:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching submission:', error);
+      }
+    };
+  
+    if (id) {
+      fetchSubmission();
     }
   }, [id]);
 
@@ -90,7 +131,7 @@ const ProblemDetail = () => {
         console.log("Fetching Google user");
         const response = await Axios.get('http://localhost:8000/api/auth/getGoogleUser');
         console.log('API Google User Response:', response.data);
-        console.log('response.data.data.savedGetUser is : ',response.data.data.savedGetUser);
+        console.log('response.data.data.savedGetUser is : ', response.data.data.savedGetUser);
         if (
           response.data &&
           response.data.status === 'Success' &&
@@ -109,23 +150,20 @@ const ProblemDetail = () => {
   }, []);
 
   useEffect(() => {
-    const storedEmail = localStorage.getItem('email'); // Get current user's email from local storage
-    console.log('Stored Email:', storedEmail); // Debug: Log the stored email
+    const storedEmail = localStorage.getItem('email');
+    console.log('Stored Email:', storedEmail);
 
     if (storedEmail) {
-      // Check for regular users
       const currentUser = users.find(user => user.email === storedEmail);
-      console.log('Current User:', currentUser); // Debug: Log the current user found in users array
-      //console.log(googleUser);
+      console.log('Current User:', currentUser);
       const googlecurrentUser = googleUser.find(user => user.email === storedEmail);
-      console.log('Google Current User:', googlecurrentUser); // Debug: Log the current user found in users array
+      console.log('Google Current User:', googlecurrentUser);
       if (currentUser) {
-        setUserId(currentUser._id); // Set current user's ID in state
-        console.log('User ID:', currentUser._id); // Debug: Log the user ID
+        setUserId(currentUser._id);
+        console.log('User ID:', currentUser._id);
       } else if (googlecurrentUser && googlecurrentUser.email === storedEmail) {
-        // Check for Google user
-        setUserId(googlecurrentUser._id); // Assuming you use googleId as userId for Google users
-        console.log('Google User ID:', googlecurrentUser._id); // Debug: Log the Google user ID
+        setUserId(googlecurrentUser._id);
+        console.log('Google User ID:', googlecurrentUser._id);
       } else {
         console.error('Current user not found in fetched users or Google user');
       }
@@ -134,13 +172,13 @@ const ProblemDetail = () => {
 
   const handleSubmit = async () => {
     const payload = {
-      userId, // This should be dynamic based on your app logic
-      problemId: id, // id from useParams
+      userId,
+      problemId: id,
       language: 'cpp',
       code
     };
 
-    console.log("Submitting payload:", payload); // Log the payload
+    console.log("Submitting payload:", payload);
 
     try {
       const { data } = await Axios.post('http://localhost:4000/api/submissions/submit', payload);
@@ -149,7 +187,7 @@ const ProblemDetail = () => {
       setActiveTab('output');
       setConsoleOpen(true);
     } catch (error) {
-      console.log(error.response); // Log the error response
+      console.log(error.response);
     }
   };
 
@@ -168,8 +206,9 @@ const ProblemDetail = () => {
   ];
 
   const InfoItem = ({ label, value }) => (
-    <div className="mb-2">
-      <strong>{label}:</strong> {value}
+    <div className="mb-4">
+      <strong>{label}:</strong>
+      <p>{value}</p>
     </div>
   );
 
@@ -186,123 +225,186 @@ const ProblemDetail = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="problem-details p-4 bg-white rounded shadow-md">
-          <h2 className="text-2xl font-bold mb-4">{problem.problemName}</h2>
-          <div>
-            {infoItems.map((item, index) => (
+    <div className="container mx-auto p-4 h-screen">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+        <div className="problem-details p-4 bg-white rounded shadow-md overflow-auto">
+          <div className="flex mb-4 border-b">
+            <button
+              className={`tab px-4 py-2 ${activeSection === 'problem' ? 'bg-blue-200 border-t border-r border-l rounded-t' : 'bg-gray-100'}`}
+              onClick={() => setActiveSection('problem')}
+            >
+              Problem
+            </button>
+            <button
+              className={`tab px-4 py-2 ${activeSection === 'mySubmissions' ? 'bg-blue-200 border-t border-r border-l rounded-t' : 'bg-gray-100'}`}
+              onClick={() => setActiveSection('mySubmissions')}
+            >
+              My Submissions
+            </button>
+            <button
+              className={`tab px-4 py-2 ${activeSection === 'allSubmissions' ? 'bg-blue-200 border-t border-r border-l rounded-t' : 'bg-gray-100'}`}
+              onClick={() => setActiveSection('allSubmissions')}
+            >
+              All Submissions        
+              </button>
+      </div>
+
+      {activeSection === 'problem' && (
+          <>
+            <InfoItem label="Description" value={problem?.description} />
+
+            <div className="flex mb-0">
+              <div className="flex-1 mr-4">
+                <InfoItem label="Difficulty" value={problem?.difficulty} />
+              </div>
+              <div className="flex-1">
+                <InfoItem label="Submissions" value={problem?.submissions} />
+              </div>
+            </div>
+
+            <div className="flex mb-1">
+              <div className="flex-1 mr-4">
+                <InfoItem label="Marks" value={problem?.marks} />
+              </div>
+              <div className="flex-1">
+                <InfoItem label="Author" value={problem?.author} />
+              </div>
+            </div>
+
+            {infoItems.slice(5).map((item, index) => (
               <InfoItem key={index} label={item.label} value={item.value} />
             ))}
-          </div>
-        </div>
-        <div className="code-editor p-4 bg-white rounded shadow-md">
-          <ResizableBox
-            width={600}
-            height={400}
-            minConstraints={[300, 200]}
-            maxConstraints={[800, 600]}
-            resizeHandles={['s', 'e', 'se']}
-          >
-            <div style={{ height: '100%', width: '100%' }}>
-              <Editor
-                height="100%"
-                language="cpp"
-                theme="vs-dark"
-                value={code}
-                onChange={(newValue) => setCode(newValue)}
-                options={{
-                  inlineSuggest: true,
-                  fontSize: 16,
-                  formatOnType: true,
-                  autoClosingBrackets: 'always',
-                  minimap: { enabled: true },
-                }}
-              />
-            </div>
-          </ResizableBox>
-          <div className={`mt-4 ${consoleOpen ? 'block' : 'hidden'}`}>
-            <div className="flex space-x-4 mb-2">
-              <button
-                className={`px-4 py-2 rounded-t-lg ${activeTab === 'input' ? 'bg-gray-200' : 'bg-gray-100'}`}
-                onClick={() => setActiveTab('input')}
-              >
-                Input
-              </button>
-              <button
-                className={`px-4 py-2 rounded-t-lg ${activeTab === 'output' ? 'bg-gray-200' : 'bg-gray-100'}`}
-                onClick={() => setActiveTab('output')}
-              >
-                Output
-              </button>
-              <button
-                className={`px-4 py-2 rounded-t-lg ${activeTab === 'verdict' ? 'bg-gray-200' : 'bg-gray-100'}`}
-                onClick={() => setActiveTab('verdict')}
-              >
-                Verdict
-              </button>
-            </div>
-            <div className="border rounded-b-lg p-2">
-              {activeTab === 'input' && (
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Enter your input here"
-                  rows={5}
-                  className="w-full p-2 border rounded"
-                />
-              )}
-              {activeTab === 'output' && (
-                <pre className="w-full p-2 border rounded bg-gray-100">{output}</pre>
-              )}
-              {activeTab === 'verdict' && (
-                <pre className="w-full p-2 border rounded bg-gray-100">{output ? 'Successful' : 'Failed'}</pre>
-              )}
-            </div>
-          </div>
-          <div className="mt-4 flex space-x-4">
-            <button
-              onClick={() => setConsoleOpen(!consoleOpen)}
-              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            >
-              {consoleOpen ? 'Close Console' : 'Open Console'}
-            </button>
-            <button
-              onClick={handleRun}
-              className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-            >
-              Run
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-      </div>
-      {googleUser && (
-        <div className="mt-4 p-4 bg-white rounded shadow-md">
-          <h2 className="text-2xl font-bold mb-4">Google User Details</h2>
-          <div>
-            <div className="mb-2">
-              <strong>Google ID:</strong> {googleUser.googleId}
-            </div>
-            <div className="mb-2">
-              <strong>Display Name:</strong> {googleUser.displayName}
-            </div>
-            <div className="mb-2">
-              <strong>Email:</strong> {googleUser.email}
-            </div>
-            <div className="mb-2">
-              <img src={googleUser.image} alt={googleUser.displayName} style={{ maxWidth: '100px' }} />
-            </div>
-          </div>
+          </>
+        )}
+
+      {activeSection === 'mySubmissions' && (
+        <div>
+          <h2 className="text-xl font-bold mb-4">My Submissions</h2>
+          {/* Display my submissions here */}
         </div>
       )}
+
+      {activeSection === 'allSubmissions' && (
+        <div>
+        <h2 className="text-xl font-bold mb-4">All Submissions</h2>
+        <table className="table-auto w-full border-collapse border border-gray-200">
+          <thead>
+            <tr>
+              <th className="border px-4 py-2">User ID</th>
+              <th className="border px-4 py-2">Problem ID</th>
+              <th className="border px-4 py-2">Language</th>
+              <th className="border px-4 py-2">Status</th>
+              <th className="border px-4 py-2">Submission Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allSubmissions.length > 0 ? (
+              allSubmissions.map((submission, index) => (
+                <SubmissionRow key={index} submission={submission} />
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center py-4">No submissions available</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      )}
     </div>
-  );
-};
+
+    <div className="coding-area p-4 bg-white rounded shadow-md flex flex-col h-full">
+        <ResizableBox
+        width={600}
+        height={600}
+        minConstraints={[300, 200]}
+        maxConstraints={[800, 600]}
+        resizeHandles={['s', 'e', 'se']}
+        >
+        <div style={{ height: '100%', width: '100%' }}>
+          <Editor
+            height="100%"
+            language="cpp"
+            theme="vs-dark"
+            value={code}
+            onChange={(newValue) => setCode(newValue)}
+            options={{
+              inlineSuggest: true,
+              fontSize: 16,
+              formatOnType: true,
+              autoClosingBrackets: 'always',
+              minimap: { enabled: true },
+            }}
+          />
+        </div>
+        </ResizableBox>
+        <div className={`mt-4 ${consoleOpen ? 'block' : 'hidden'} flex-grow`}>
+      <div className="flex space-x-4 mb-2">
+        <button
+          className={`px-4 py-2 rounded-t-lg ${activeTab === 'input' ? 'bg-gray-200' : 'bg-gray-100'}`}
+          onClick={() => setActiveTab('input')}
+        >
+          Input
+        </button>
+        <button
+          className={`px-4 py-2 rounded-t-lg ${activeTab === 'output' ? 'bg-gray-200' : 'bg-gray-100'}`}
+          onClick={() => setActiveTab('output')}
+        >
+          Output
+        </button>
+        <button
+          className={`px-4 py-2 rounded-t-lg ${activeTab === 'verdict' ? 'bg-gray-200' : 'bg-gray-100'}`}
+          onClick={() => setActiveTab('verdict')}
+        >
+          Verdict
+        </button>
+      </div>
+      <div className="border rounded-b-lg p-2">
+        {activeTab === 'input' && (
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Enter your input here"
+            rows={5}
+            className="w-full p-2 border rounded"
+          />
+        )}
+        {activeTab === 'output' && (
+          <pre className="w-full p-2 border rounded bg-gray-100">{output}</pre>
+        )}
+        {activeTab === 'verdict' && (
+          <pre className="w-full p-2 border rounded bg-gray-100">{output ? 'Successful' : 'Failed'}</pre>
+        )}
+      </div>
+    </div>
+
+    <div className="mt-4 flex space-x-4">
+      <button
+        onClick={() => setConsoleOpen(!consoleOpen)}
+        className={`bg-black text-white py-2 px-4 rounded flex items-center space-x-2 hover:bg-${themeColor}-600 focus:outline-none focus:ring-2 focus:ring-${themeColor}-500 focus:ring-opacity-50`}
+      >
+        <FaTerminal />
+        <span>{consoleOpen ? 'Close Console' : 'Open Console'}</span>
+      </button>
+      <button
+        onClick={handleRun}
+        className="bg-green-500 text-white py-2 px-4 rounded flex items-center space-x-2 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+      >
+        <FaPlay />
+        <span>Run</span>
+      </button>
+      <button
+        onClick={handleSubmit}
+        className="bg-red-500 text-white py-2 px-4 rounded flex items-center space-x-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+      >
+        <FaPaperPlane />
+        <span>Submit</span>
+      </button>
+        </div>
+        </div>
+        </div>
+        </div>
+        );
+        };
 
 export default ProblemDetail;
