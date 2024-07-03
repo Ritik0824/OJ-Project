@@ -316,7 +316,7 @@ const ProblemDetail = () => {
     <div className="coding-area p-4 bg-white rounded shadow-md flex flex-col h-full">
         <ResizableBox
         width={600}
-        height={600}
+        height={550}
         minConstraints={[300, 200]}
         maxConstraints={[800, 600]}
         resizeHandles={['s', 'e', 'se']}

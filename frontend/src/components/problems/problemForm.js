@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import Axios from 'axios';
 import ProblemContext from './problemContext';
 
-const ProblemForm = () => {
+const ProblemForm = ({ onProblemAdd }) => {
     const [problemName, setProblemName] = useState('');
     const [description, setDescription] = useState('');
     const [difficulty, setDifficulty] = useState('');
@@ -40,6 +40,8 @@ const ProblemForm = () => {
                 hiddenTestCases
             });
             addProblem(response.data);
+            const newProblem = response.data;
+            onProblemAdd(newProblem);
 
             // Optionally, reset form fields after successful submission
             setProblemName('');
