@@ -31,7 +31,7 @@ const ProblemDetail = () => {
 
   const [code, setCode] = useState(`#include <iostream>\nusing namespace std;\nint main() {\n  cout << "Hello, World!" << endl;\n  return 0;\n}`);
   const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
+  const [output, setOutput] = useState({ message: '', color: '' });
   const [activeTab, setActiveTab] = useState('input');
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('problem');
@@ -177,14 +177,16 @@ const ProblemDetail = () => {
       language: 'cpp',
       code
     };
-
+  
     console.log("Submitting payload:", payload);
-
+  
     try {
       const { data } = await Axios.post('http://localhost:4000/api/submissions/submit', payload);
       console.log(data);
-      setOutput(data.status === 'accepted' ? 'All hidden test cases passed!' : 'Some hidden test cases failed.');
-      setActiveTab('output');
+      const verdictMessage = data.status === 'accepted' ? 'All hidden test cases passed!' : 'Some hidden test cases failed.';
+      const verdictColor = data.status === 'accepted' ? 'green' : 'red';
+      setOutput({ message: verdictMessage, color: verdictColor });
+      setActiveTab('verdict');
       setConsoleOpen(true);
     } catch (error) {
       console.log(error.response);
@@ -373,8 +375,11 @@ const ProblemDetail = () => {
           <pre className="w-full p-2 border rounded bg-gray-100">{output}</pre>
         )}
         {activeTab === 'verdict' && (
-          <pre className="w-full p-2 border rounded bg-gray-100">{output ? 'Successful' : 'Failed'}</pre>
-        )}
+  <pre className={`w-full p-2 border rounded bg-gray-100 text-${output.color}-500`}>
+    {output.message}
+  </pre>
+)}
+
       </div>
     </div>
 

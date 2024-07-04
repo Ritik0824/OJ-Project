@@ -1,8 +1,10 @@
 import React, { useState, useContext } from 'react';
 import Axios from 'axios';
 import ProblemContext from './problemContext';
+import { toast, ToastContainer } from 'react-toastify';  // Import toast and ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; 
 
-const ProblemForm = ({ onProblemAdd }) => {
+const ProblemForm = () => {
     const [problemName, setProblemName] = useState('');
     const [description, setDescription] = useState('');
     const [difficulty, setDifficulty] = useState('');
@@ -40,8 +42,7 @@ const ProblemForm = ({ onProblemAdd }) => {
                 hiddenTestCases
             });
             addProblem(response.data);
-            const newProblem = response.data;
-            onProblemAdd(newProblem);
+            toast.success('Problem Added Successfully!');
 
             // Optionally, reset form fields after successful submission
             setProblemName('');
@@ -241,6 +242,7 @@ const ProblemForm = ({ onProblemAdd }) => {
                     </button>
                 </div>
             </form>
+            <ToastContainer /> 
         </div>
     );
 };
