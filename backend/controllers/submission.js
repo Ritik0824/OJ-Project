@@ -3,7 +3,7 @@ const Submission = require('../models/SubmissionModel');
 const { generateFile } = require('../generateFile');
 const { generateInputFile } =  require('../generateInputFile');
 const { executeCpp } = require('../executeCpp');
-const { get } = require('mongoose');
+const { executePy } = require('../executePy');
 
 const submitCode = async (req, res) => {
     const { userId, language = 'cpp', code, problemId } = req.body;
@@ -24,7 +24,19 @@ const submitCode = async (req, res) => {
 
         for (const testCase of hiddenTestCases) {
             const inputPath = await generateInputFile(testCase.input);
-            const output = await executeCpp(filePath, inputPath);
+            let output;
+
+            try {
+                if (language === 'cpp') {
+                    output = await executeCpp(filePath, inputPath);
+                } else if (language === 'py') {
+                    output = await executePy(filePath, inputPath);
+                } else {
+                    return res.status(400).json({ success: false, error: "Unsupported language" });
+                }
+            } catch (execError) {
+                return res.status(500).json({ success: false, error: `Error executing code: ${execError.message}` });
+            }
 
             const isCorrect = output.trim() === testCase.expectedOutput.trim();
             results.push({ input: testCase.input, expectedOutput: testCase.expectedOutput, actualOutput: output, isCorrect });
@@ -59,6 +71,5 @@ const getSubmissions = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 
 module.exports = { submitCode, getSubmissions };

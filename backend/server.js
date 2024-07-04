@@ -2,6 +2,7 @@ const express = require('express');
 const { generateFile } = require('./generateFile');
 const { generateInputFile } = require('./generateInputFile');
 const { executeCpp } = require('./executeCpp');
+const { executePy } = require('./executePy');
 const dotenv = require('dotenv');
 const Problem = require('./models/ProblemModel');
 const { DBConnection } = require('./database/db.js');
@@ -32,8 +33,8 @@ app.get('/', (req, res) => {
 });
 
 app.post("/run", async (req, res) => {
-    console.log("running /run request");
     const { language = 'cpp', code, input } = req.body;
+    console.log(language);
     if (code === undefined) {
         return res.status(404).json({ success: false, error: "Empty code!" });
     }
@@ -41,12 +42,20 @@ app.post("/run", async (req, res) => {
     try {
         const filePath = await generateFile(language, code);
         const inputPath = await generateInputFile(input);
-        const output = await executeCpp(filePath, inputPath);
+        let output;
+        if(language === "cpp"){
+            output = await executeCpp(filePath, inputPath);
+        }
+        else{
+            output = await executePy(filePath, inputPath);
+        }
+        
         res.json({ output });
     } catch (error) {
         res.status(500).json({ error: error });
     }
 });
+
 
 app.get('/sync-google-users', async (req, res) => {
     try {

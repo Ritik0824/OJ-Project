@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -10,6 +8,17 @@ import { FaPlay, FaPaperPlane, FaTerminal } from 'react-icons/fa'; // Import ico
 
 const themeColor = 'blue'; // Set the theme color for your page
 
+const initialCppCode = `//Write your C++ code here
+#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello, World!";
+    return 0;
+}`;
+
+const initialPyCode = `# Write your Python code here
+print("Hello, World!")`;
 
 const SubmissionRow = ({ submission }) => {
   return (
@@ -29,8 +38,9 @@ const ProblemDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [code, setCode] = useState(`#include <iostream>\nusing namespace std;\nint main() {\n  cout << "Hello, World!" << endl;\n  return 0;\n}`);
+  const [code, setCode] = useState(initialCppCode); // Initial code set to C++
   const [input, setInput] = useState('');
+  const [language, setLanguage] = useState('cpp');
   const [output, setOutput] = useState({ message: '', color: '' });
   const [activeTab, setActiveTab] = useState('input');
   const [consoleOpen, setConsoleOpen] = useState(false);
@@ -84,7 +94,7 @@ const ProblemDetail = () => {
 
   const handleRun = async () => {
     const payload = {
-      language: 'cpp',
+      language,
       code,
       input
     };
@@ -315,10 +325,25 @@ const ProblemDetail = () => {
       )}
     </div>
 
-    <div className="coding-area p-4 bg-white rounded shadow-md flex flex-col h-full">
+    <div className="coding-area p-4 bg-white rounded shadow-md flex flex-col h-full"><div className="flex items-center space-x-2 mb-0">
+  <label className="text-gray-700 font-semibold">Language: </label>
+  <select
+    value={language}
+    onChange={(e) => {
+      setLanguage(e.target.value);
+      setCode(e.target.value === 'cpp' ? initialCppCode : initialPyCode); // Set code template based on selected language
+    }}
+    className="px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+  >
+    <option value="cpp">C++</option>
+    <option value="py">Python</option>
+  </select>
+</div>
+      <br />
+      
         <ResizableBox
         width={600}
-        height={550}
+        height={470}
         minConstraints={[300, 200]}
         maxConstraints={[800, 600]}
         resizeHandles={['s', 'e', 'se']}
@@ -326,7 +351,7 @@ const ProblemDetail = () => {
         <div style={{ height: '100%', width: '100%' }}>
           <Editor
             height="100%"
-            language="cpp"
+            language={language} // Dynamically set language for the editor
             theme="vs-dark"
             value={code}
             onChange={(newValue) => setCode(newValue)}
@@ -413,3 +438,4 @@ const ProblemDetail = () => {
         };
 
 export default ProblemDetail;
+

@@ -13,18 +13,21 @@ const executeCpp = (filepath, inputPath) => {
   const outPath = path.join(outputPath, `${jobId}.out`);
 
   return new Promise((resolve, reject) => {
-    exec(
-      `g++ ${filepath} -o ${outPath} && cd ${outputPath} && ./${jobId}.out < ${inputPath}`,
-      (error, stdout, stderr) => {
-        if (error) {
-          reject({ error, stderr });
-        }
-        if (stderr) {
-          reject(stderr);
-        }
-        resolve(stdout);
+    const command = `g++ ${filepath} -o ${outPath} && cd ${outputPath} && ./${jobId}.out < ${inputPath}`;
+    console.log(`Executing command: ${command}`);
+
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Execution error: ${error.message}`);
+        return reject({ error: error.message, stderr });
       }
-    );
+      if (stderr) {
+        console.error(`Execution stderr: ${stderr}`);
+        return reject(stderr);
+      }
+      console.log(`Execution stdout: ${stdout}`);
+      resolve(stdout);
+    });
   });
 };
 
