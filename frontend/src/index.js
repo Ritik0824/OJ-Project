@@ -14,7 +14,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <GoogleOAuthProvider clientId='71420710466-a9j34366bbf323s8mr3d4krkb22375f7.apps.googleusercontent.com'>
+      <GoogleOAuthProvider clientId='process.env.GOOGLE_CLIENT_ID'>
       <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
           <Toaster />

@@ -33,8 +33,8 @@ app.get('/', (req, res) => {
 });
 
 app.post("/run", async (req, res) => {
+    console.log("running /run request");
     const { language = 'cpp', code, input } = req.body;
-    console.log(language);
     if (code === undefined) {
         return res.status(404).json({ success: false, error: "Empty code!" });
     }
@@ -55,7 +55,6 @@ app.post("/run", async (req, res) => {
         res.status(500).json({ error: error });
     }
 });
-
 
 app.get('/sync-google-users', async (req, res) => {
     try {

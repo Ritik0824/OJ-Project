@@ -5,6 +5,16 @@
   height: 100vh;
 }
 
+.accepted {
+  background-color: green;
+  color: white;
+}
+
+.rejected {
+  background-color: red;
+  color: white;
+}
+
 .problem-card {
   width: 800px;
   background-color: #fff;

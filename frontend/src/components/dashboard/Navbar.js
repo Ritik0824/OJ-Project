@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { post } from '../../services/apiEndpoint';
+import './Navbar.css';
 
 const Navbar = ({ currentPage }) => {
   const user = useSelector(state => state.Auth.user);
@@ -88,20 +89,20 @@ const Navbar = ({ currentPage }) => {
         )}
       </div>
       <div className="relative cursor-pointer" onClick={toggleDropdown}>
-        <FaUser className="text-white hover:text-gray-300 transition duration-300" />
+        <FaUser className="text-white mr-6 hover:text-gray-300 transition duration-300" />
         {showDropdown && (
-          <div className="absolute right-0 mt-2 bg-gray-800 rounded shadow-md">
+          <div className="absolute right-0 mt-2 bg-gray-800 rounded shadow-md z-10 animate-dropdown">
             <ul className="p-2">
-              <li className="text-white hover:bg-gray-700 p-2 rounded cursor-pointer">
-                <Link to="/home/profile">Profile</Link>
+              <li className="text-white hover:bg-gray-700 p-2  rounded cursor-pointer transition duration-200">
+                <Link className='text-decoration-none text-white' to="/profile">Profile</Link>
               </li>
-              <li className="text-white hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={handleSignOut}>
+              <li className="text-white hover:bg-gray-700 p-2 rounded cursor-pointer transition duration-200" onClick={handleSignOut}>
                 Sign Out
               </li>
             </ul>
           </div>
         )}
-        <FaAngleDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <FaAngleDown className={`absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 transition duration-300 ${showDropdown ? 'rotate-180' : ''}`} />
       </div>
     </nav>
   );

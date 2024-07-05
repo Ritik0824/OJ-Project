@@ -10,8 +10,8 @@ import AdminLayout from './Layout/AdminLayout';
 import UserLayout from './Layout/UserLayout';
 import PublicLayouts from './Layout/PublicLayout';
 import ProblemDetail from './components/problems/problemdetails';
-import UpdatedProblem from './components/problems/updateProblem';
 import AllContests from './components/contest/AllContest';
+
 
 
 const App = () => {
@@ -30,7 +30,6 @@ const App = () => {
         </Route>
         <Route path='/*' element={<Home />} />
         <Route path='/api/get-problem/:id' element={<ProblemDetail />} />
-        <Route path="/update-problem/" element={<UpdatedProblem />} />
         <Route path="/all-contests" element={<AllContests/>} />
        
       </Routes>

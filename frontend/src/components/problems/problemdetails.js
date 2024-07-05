@@ -5,6 +5,23 @@ import Editor from '@monaco-editor/react';
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 import { FaPlay, FaPaperPlane, FaTerminal } from 'react-icons/fa'; // Import icons
+import { format } from 'date-fns';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS
+
+
+const notify = () => toast.dark('Solution Accepted!', {
+  className: 'bg-success text-light',
+  bodyClassName: 'text-center',
+  progressClassName: 'bg-white',
+});
+
+const notify2 = () => toast.dark('Wrong Answer!', {
+  className: 'bg-danger text-light',
+  bodyClassName: 'text-center',
+  progressClassName: 'bg-white',
+});
 
 const themeColor = 'blue'; // Set the theme color for your page
 
@@ -20,15 +37,57 @@ int main() {
 const initialPyCode = `# Write your Python code here
 print("Hello, World!")`;
 
-const SubmissionRow = ({ submission }) => {
+const getStatusClass = (result) => {
+  return result === 'accepted' ? 'bg-green-200' : 'bg-red-200';
+};
+
+const CodePopup = ({ code, onClose }) => {
   return (
-    <tr>
-      <td className="border px-4 py-2">{submission.userId ? submission.userId._id : 'Anonymous'}</td>
-      <td className="border px-4 py-2">{submission.problemId}</td>
+    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+      <div className="bg-white p-4 rounded-md shadow-md w-3/4 max-w-lg">
+        <pre className="overflow-auto max-h-80">{code}</pre>
+        <button onClick={onClose} className="bg-gray-300 px-4 py-2 mt-4 rounded-md hover:bg-gray-400 focus:outline-none">
+          Close
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
+
+const SubmissionRow = ({ submission }) => {
+  const statusClass = getStatusClass(submission.result);
+  const [showCodePopup, setShowCodePopup] = useState(false);
+
+  const handleViewCode = () => {
+    setShowCodePopup(true);
+  };
+  
+  const handleClosePopup = () => {
+    setShowCodePopup(false);
+  };
+
+  return (
+    <>
+    <tr className={statusClass}>
+      <td className="border px-4 py-2">{submission.userId?.name || 'Anonymous'}</td>
       <td className="border px-4 py-2">{submission.language}</td>
-      <td className="border px-4 py-2">{submission.status}</td>
-      <td className="border px-4 py-2">{submission.submissionDate}</td>
-    </tr>
+      <td className="border px-4 py-2">{submission.result}</td>
+      <td className="border px-4 py-2">{format(new Date(submission.createdAt), 'PPpp')}</td>
+      <td className="border px-4 py-2">
+          <button
+            onClick={handleViewCode}
+            className="bg-black hover:bg-blue-700 text-white py-2 px-4 rounded focus:outline-none"
+          >
+            View
+          </button>
+        </td>
+      </tr>
+      {showCodePopup && (
+        <CodePopup code={submission.code} onClose={handleClosePopup} />
+      )}
+    </>
   );
 };
 
@@ -78,7 +137,10 @@ const ProblemDetail = () => {
         console.log('API Submissions:', response.data);
   
         if (response.data.success) {
-          setAllSubmissions(response.data.submissions);
+          const sortedSubmissions = response.data.submissions.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setAllSubmissions(sortedSubmissions);
         } else {
           console.error('Failed to fetch submissions:', response.data);
         }
@@ -92,18 +154,20 @@ const ProblemDetail = () => {
     }
   }, [id]);
 
+  
+
   const handleRun = async () => {
     const payload = {
       language,
       code,
       input
     };
-
+  
     try {
       const { data } = await Axios.post('http://localhost:4000/run', payload);
       console.log("running /run request");
       console.log(data);
-      setOutput(data.output);
+      setOutput({ message: data.output, color: 'black' });
       setActiveTab('output');
       setConsoleOpen(true);
     } catch (error) {
@@ -198,6 +262,12 @@ const ProblemDetail = () => {
       setOutput({ message: verdictMessage, color: verdictColor });
       setActiveTab('verdict');
       setConsoleOpen(true);
+      if (data.status === 'accepted') {
+        notify();
+      }
+      else{
+        notify2();
+      }
     } catch (error) {
       console.log(error.response);
     }
@@ -289,12 +359,32 @@ const ProblemDetail = () => {
           </>
         )}
 
-      {activeSection === 'mySubmissions' && (
-        <div>
-          <h2 className="text-xl font-bold mb-4">My Submissions</h2>
-          {/* Display my submissions here */}
-        </div>
-      )}
+{activeSection === 'mySubmissions' && (
+  <div>
+    <h2 className="text-xl font-bold mb-4">My Submissions</h2>
+    <table className="table-auto w-full border-collapse border border-gray-200">
+      <thead>
+        <tr>
+          <th className="border px-4 py-2">User Name</th>
+          <th className="border px-4 py-2">Language</th>
+          <th className="border px-4 py-2">Result</th>
+          <th className="border px-4 py-2">Submission Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {allSubmissions.filter(submission => submission.userId?._id === userId).length > 0 ? (
+          allSubmissions.filter(submission => submission.userId?._id === userId).map((submission, index) => (
+            <SubmissionRow key={index} submission={submission} />
+          ))
+        ) : (
+          <tr>
+            <td colSpan="5" className="text-center py-4">No submissions available</td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+)}
 
       {activeSection === 'allSubmissions' && (
         <div>
@@ -302,10 +392,9 @@ const ProblemDetail = () => {
         <table className="table-auto w-full border-collapse border border-gray-200">
           <thead>
             <tr>
-              <th className="border px-4 py-2">User ID</th>
-              <th className="border px-4 py-2">Problem ID</th>
+              <th className="border px-4 py-2">User Name</th>
               <th className="border px-4 py-2">Language</th>
-              <th className="border px-4 py-2">Status</th>
+              <th className="border px-4 py-2">Result</th>
               <th className="border px-4 py-2">Submission Date</th>
             </tr>
           </thead>
@@ -366,47 +455,47 @@ const ProblemDetail = () => {
         </div>
         </ResizableBox>
         <div className={`mt-4 ${consoleOpen ? 'block' : 'hidden'} flex-grow`}>
-      <div className="flex space-x-4 mb-2">
-        <button
-          className={`px-4 py-2 rounded-t-lg ${activeTab === 'input' ? 'bg-gray-200' : 'bg-gray-100'}`}
-          onClick={() => setActiveTab('input')}
-        >
-          Input
-        </button>
-        <button
-          className={`px-4 py-2 rounded-t-lg ${activeTab === 'output' ? 'bg-gray-200' : 'bg-gray-100'}`}
-          onClick={() => setActiveTab('output')}
-        >
-          Output
-        </button>
-        <button
-          className={`px-4 py-2 rounded-t-lg ${activeTab === 'verdict' ? 'bg-gray-200' : 'bg-gray-100'}`}
-          onClick={() => setActiveTab('verdict')}
-        >
-          Verdict
-        </button>
-      </div>
-      <div className="border rounded-b-lg p-2">
-        {activeTab === 'input' && (
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter your input here"
-            rows={5}
-            className="w-full p-2 border rounded"
-          />
-        )}
-        {activeTab === 'output' && (
-          <pre className="w-full p-2 border rounded bg-gray-100">{output}</pre>
-        )}
-        {activeTab === 'verdict' && (
-  <pre className={`w-full p-2 border rounded bg-gray-100 text-${output.color}-500`}>
-    {output.message}
-  </pre>
-)}
+  <div className="flex space-x-4 mb-2">
+    <button
+      className={`px-4 py-2 rounded-t-lg ${activeTab === 'input' ? 'bg-gray-200' : 'bg-gray-100'}`}
+      onClick={() => setActiveTab('input')}
+    >
+      Input
+    </button>
+    <button
+      className={`px-4 py-2 rounded-t-lg ${activeTab === 'output' ? 'bg-gray-200' : 'bg-gray-100'}`}
+      onClick={() => setActiveTab('output')}
+    >
+      Output
+    </button>
+    <button
+      className={`px-4 py-2 rounded-t-lg ${activeTab === 'verdict' ? 'bg-gray-200' : 'bg-gray-100'}`}
+      onClick={() => setActiveTab('verdict')}
+    >
+      Verdict
+    </button>
+  </div>
+  <div className="border rounded-b-lg p-2">
+    {activeTab === 'input' && (
+      <textarea
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Enter your input here"
+        rows={5}
+        className="w-full p-2 border rounded"
+      />
+    )}
+    {activeTab === 'output' && (
+      <pre className="w-full p-2 border rounded bg-gray-100">{output.message}</pre>
+    )}
+    {activeTab === 'verdict' && output && (
+      <pre className={`w-full p-2 border rounded bg-gray-100 text-${output.color}-500`}>
+        {output.message}
+      </pre>
+    )}
+  </div>
+</div>
 
-      </div>
-    </div>
 
     <div className="mt-4 flex space-x-4">
       <button
@@ -433,6 +522,7 @@ const ProblemDetail = () => {
         </div>
         </div>
         </div>
+        <ToastContainer />
         </div>
         );
         };

@@ -17,6 +17,7 @@ import { Routes, Route } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { toast } from 'react-toastify';
+import Profile from '../components/profile/profile.js';
 
 const Home = () => {
   const user = useSelector((state) => state.Auth.user);
@@ -54,6 +55,8 @@ const Home = () => {
         <Route path="/blog" element={<Blog />} />
         <Route path="/get-problem/:id" element={<ProblemDetails />} />
         <Route path="/get-problem" element={<FetchProblem />} />
+        <Route path='/profile' element={<Profile />} />
+        <Route path="/update-problem/" element={<UpdatedProblem />} />
         {user && user.role === 'admin' && (
           <Route path="/update-problem" element={<UpdatedProblem />} />
         )}

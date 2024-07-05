@@ -113,4 +113,18 @@ const Login=async(req,res)=>{
         }
      }
 
-module.exports = {register,Login,Logout,CheckUser, getUser, getGoogleuser};
+     const getUserProfileById = async (req, res) => {
+        try {
+            const userId = req.params.id;
+            const user = await UserModel.findById(userId).select('-password');
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.status(200).json({ name: user.name, email: user.email, role: user.role });
+        } catch (error) {
+            res.status(500).json({ message: 'Server Error' });
+        }
+    };
+    
+    module.exports = { register, Login, Logout, CheckUser, getUser, getGoogleuser, getUserProfileById };
+    
