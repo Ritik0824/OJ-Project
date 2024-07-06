@@ -65,7 +65,7 @@ const getSubmissions = async (req, res) => {
     const { problemId } = req.params;
 
     try {
-        const submissions = await Submission.find({ problemId }).populate('userId', 'name');
+        const submissions = await Submission.find({ problemId }).populate('userId', 'displayName email');
         res.json({ success: true, submissions });
     } catch (error) {
         res.status(500).json({ error: error.message });
