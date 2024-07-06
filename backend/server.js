@@ -19,7 +19,10 @@ const AuthRoutes = require('./routes/Auth.js');
 // Initialize database
 DBConnection();
 // Middleware
-app.use(cors());
+app.use(cors({
+    credentials: true,
+    origin: 'http://localhost:3000'  
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
