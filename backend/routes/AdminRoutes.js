@@ -1,5 +1,5 @@
 const express = require('express');
-const { Getuser, deletUser } = require('../controllers/Admin.js');
+const { Getuser, deletUser } = require('../controllers/admin.js');
 const { isAdmin } = require('../middleware/verifyToken.js');
 
 const AdminRoutes=express.Router()

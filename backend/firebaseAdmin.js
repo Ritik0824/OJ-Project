@@ -1,7 +1,9 @@
 const admin = require('firebase-admin');
 const { MongoClient } = require('mongodb');
+const path = require('path');
+require('dotenv').config();
 
-const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+const serviceAccountPath = path.resolve(__dirname, process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 const serviceAccount = require(serviceAccountPath);
 
 // Initialize Firebase Admin SDK
@@ -12,7 +14,7 @@ admin.initializeApp({
 const auth = admin.auth();
 
 // Initialize MongoDB Client
-const uri = process.env.MONGODB_URI;
+const uri = process.env.MONGO_URL;
 const client = new MongoClient(uri);
 
 async function syncGoogleUsersToMongoDB(users) {
@@ -49,10 +51,10 @@ async function listUsers(nextPageToken) {
     }
 
     if (listUsersResult.pageToken) {
-      listUsers(listUsersResult.pageToken);
+      await listUsers(listUsersResult.pageToken);
     }
   } catch (error) {
-    console.log('Error listing users:', error);
+    console.error('Error listing users:', error);
   }
 }
 

@@ -12,7 +12,7 @@ const { listUsers } = require('./firebaseAdmin.js');
 dotenv.config();
 const app = express();
 const cors = require('cors');
-const COMPILER_PORT = process.env.COMPILER_PORT || 4000
+const PORT = process.env.SUBMISSION_PORT || 4000
 const SubmissionRoutes = require('./routes/SubmissionRoute.js');
 const AuthRoutes = require('./routes/Auth.js');
 
@@ -65,6 +65,6 @@ app.get('/sync-google-users', async (req, res) => {
     }
   });
 
-app.listen(COMPILER_PORT, () => {
-    console.log(`Server started on port ${COMPILER_PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
 });
