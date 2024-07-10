@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 app.use(cors({
     credentials: true,
-    origin: 'https://codeflowoj.netlify.app'  
+    origin: 'http://localhost:3000'  
 }));
 
 // Initialize database

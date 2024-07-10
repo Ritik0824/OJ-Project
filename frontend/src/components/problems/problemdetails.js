@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
+import decode from '../../services/decode';
 import { useParams } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { ResizableBox } from 'react-resizable';
@@ -9,7 +10,7 @@ import { format } from 'date-fns';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS
-
+import { BeatLoader } from 'react-spinners';
 
 const notify = () => toast.dark('Solution Accepted!', {
   className: 'bg-success text-light',
@@ -105,21 +106,20 @@ const ProblemDetail = () => {
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('problem');
   const [userId, setUserId] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [googleUser, setGoogleUser] = useState([]);
   const [allSubmissions, setAllSubmissions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchProblem = async () => {
       try {
-        console.log('Fetching problem with ID:', id);
+        //console.log('Fetching problem with ID:', id);
         const response = await Axios.get(`http://localhost:8000/api/get-problem/${id}`);
-        console.log('API response:', response.data);
+        //console.log('API response:', response.data);
 
         setProblem(response.data.data.problem);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching problem:', error);
+        //console.error('Error fetching problem:', error);
         setError('Error fetching problem data');
         setLoading(false);
       }
@@ -134,7 +134,7 @@ const ProblemDetail = () => {
     const fetchSubmission = async () => {
       try {
         const response = await Axios.get(`http://localhost:4000/api/submissions/${id}`);
-        console.log('API Submissions:', response.data);
+        //console.log('API Submissions:', response.data);
   
         if (response.data.success) {
           const sortedSubmissions = response.data.submissions.sort(
@@ -142,7 +142,7 @@ const ProblemDetail = () => {
           );
           setAllSubmissions(sortedSubmissions);
         } else {
-          console.error('Failed to fetch submissions:', response.data);
+          //console.error('Failed to fetch submissions:', response.data);
         }
       } catch (error) {
         console.error('Error fetching submission:', error);
@@ -162,89 +162,60 @@ const ProblemDetail = () => {
       code,
       input
     };
+
+    setIsLoading(true);
   
     try {
       const { data } = await Axios.post('http://localhost:4000/run', payload);
-      console.log("running /run request");
-      console.log(data);
+      //console.log("running /run request");
+      //console.log(data);
       setOutput({ message: data.output, color: 'black' });
       setActiveTab('output');
       setConsoleOpen(true);
     } catch (error) {
-      console.log(error.response);
+      //console.log(error.response);
+    }  finally{
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     const fetchUsers = async () => {
+      const token = localStorage.getItem('token');
+      const { userId } = decode(token);
       try {
-        console.log("Fetching users");
-        const response = await Axios.get('http://localhost:8000/api/auth/getUser');
-        console.log('API User Response:', response.data);
+        //console.log("Fetching users");
+        const response = await Axios.get('http://localhost:8000/api/auth/getUser',{
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        //console.log('API User Response:', response.data);
 
         if (
           response.data &&
           response.data.status === 'Success' &&
           Array.isArray(response.data.data.savedGetUser)
         ) {
-          setUsers(response.data.data.savedGetUser);
+          setUserId(userId);
         } else {
-          console.error('API response does not contain users:', response.data);
+          //console.error('API response does not contain users:', response.data);
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        //console.error('Error fetching users:', error);
       }
     };
 
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    const fetchGoogleUser = async () => {
-      try {
-        console.log("Fetching Google user");
-        const response = await Axios.get('http://localhost:8000/api/auth/getGoogleUser');
-        console.log('API Google User Response:', response.data);
-        console.log('response.data.data.savedGetUser is : ', response.data.data.savedGetUser);
-        if (
-          response.data &&
-          response.data.status === 'Success' &&
-          response.data.data.savedGetUser
-        ) {
-          setGoogleUser(response.data.data.savedGetUser);
-        } else {
-          console.error('API response does not contain Google user:', response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching Google user:', error);
-      }
-    };
-
-    fetchGoogleUser();
-  }, []);
-
-  useEffect(() => {
-    const storedEmail = localStorage.getItem('email');
-    console.log('Stored Email:', storedEmail);
-
-    if (storedEmail) {
-      const currentUser = users.find(user => user.email === storedEmail);
-      console.log('Current User:', currentUser);
-      const googlecurrentUser = googleUser.find(user => user.email === storedEmail);
-      console.log('Google Current User:', googlecurrentUser);
-      if (currentUser) {
-        setUserId(currentUser._id);
-        console.log('User ID:', currentUser._id);
-      } else if (googlecurrentUser && googlecurrentUser.email === storedEmail) {
-        setUserId(googlecurrentUser._id);
-        console.log('Google User ID:', googlecurrentUser._id);
-      } else {
-        console.error('Current user not found in fetched users or Google user');
-      }
-    }
-  }, [users, googleUser]);
+  
+  
 
   const handleSubmit = async () => {
+    const token = localStorage.getItem('token');
+    const { userId } = decode(token);
+
     const payload = {
       userId,
       problemId: id,
@@ -253,10 +224,11 @@ const ProblemDetail = () => {
     };
   
     console.log("Submitting payload:", payload);
-  
+    
+    setIsLoading(true);
     try {
       const { data } = await Axios.post('http://localhost:4000/api/submissions/submit', payload);
-      console.log(data);
+      //console.log(data);
       const verdictMessage = data.status === 'accepted' ? 'All hidden test cases passed!' : 'Some hidden test cases failed.';
       const verdictColor = data.status === 'accepted' ? 'green' : 'red';
       setOutput({ message: verdictMessage, color: verdictColor });
@@ -270,6 +242,8 @@ const ProblemDetail = () => {
       }
     } catch (error) {
       console.log(error.response);
+    } finally{
+      setIsLoading(false);
     }
   };
 
@@ -295,7 +269,11 @@ const ProblemDetail = () => {
   );
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <BeatLoader color="#0000ff" loading={loading} size={15} />
+      </div>
+    );
   }
 
   if (error) {
@@ -508,16 +486,17 @@ const ProblemDetail = () => {
       <button
         onClick={handleRun}
         className="bg-green-500 text-white py-2 px-4 rounded flex items-center space-x-2 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+        disabled={isLoading}
       >
-        <FaPlay />
-        <span>Run</span>
+        {isLoading ? <BeatLoader color="#ffffff" loading={isLoading} size={10} /> : <><FaPlay /><span>Run</span></>}
       </button>
       <button
         onClick={handleSubmit}
         className="bg-red-500 text-white py-2 px-4 rounded flex items-center space-x-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+        disabled={isLoading}
       >
-        <FaPaperPlane />
-        <span>Submit</span>
+        {isLoading ? <BeatLoader color="#ffffff" loading={isLoading} size={10} /> : <><FaPaperPlane /><span>Submit</span></>}
+        
       </button>
         </div>
         </div>
@@ -528,4 +507,3 @@ const ProblemDetail = () => {
         };
 
 export default ProblemDetail;
-

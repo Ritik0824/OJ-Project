@@ -55,5 +55,10 @@ const problemSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
+problemSchema.methods.toJSON = function() {
+    const obj = this.toObject();
+    delete obj.hiddenTestCases;
+    return obj;
+};
 
 module.exports = mongoose.model('problem',problemSchema);

@@ -23,9 +23,9 @@ instance.interceptors.request.use(function (config) {
 
 // Add a response interceptor
 instance.interceptors.response.use(function (response) {
-        console.log('intercpert reponse',response)
+        //console.log('intercpert reponse',response)
     return response;
   }, function (error) {
-    console.log('intercpert reponse',error)
+    //console.log('intercpert reponse',error)
     return Promise.reject(error);
   });

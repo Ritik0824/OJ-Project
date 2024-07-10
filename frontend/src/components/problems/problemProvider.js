@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import ProblemContext from './problemContext';
+import { useNavigate } from 'react-router-dom';
 
 const ProblemProvider = ({ children }) => {
   const [problems, setProblems] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        console.log("Fetching problems");
-        const response = await Axios.get('http://localhost:8000/api/get-problem');
-        console.log('API Response:', response.data);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
 
-        // Correctly access the problems array
+        const response = await Axios.get('http://localhost:8000/api/get-problem', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
         if (
-          response.data && 
-          response.data.status === 'Success' && 
+          response.data &&
+          response.data.status === 'Success' &&
           Array.isArray(response.data.data.savedGetProblem)
         ) {
           setProblems(response.data.data.savedGetProblem);
@@ -24,11 +33,14 @@ const ProblemProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error fetching problems:', error);
+        if (error.response && error.response.status === 401) {
+          navigate('/login');
+        }
       }
     };
 
     fetchProblems();
-  }, []);
+  }, [navigate]);
 
   const addProblem = (newProblem) => {
     console.log("Adding problem:", newProblem);

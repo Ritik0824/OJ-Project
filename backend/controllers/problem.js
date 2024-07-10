@@ -34,6 +34,12 @@ const getProblems = async (req, res) => {
 const getProblembyID = async (req, res) => {
     try {
         const problem = await Problem.findById(req.params.id);
+        if (!problem) {
+            return res.status(404).json({
+                status: 'Failed',
+                message: 'Problem not found'
+            });
+        }
         res.status(200).json({
             status: 'Success',
             data: { problem }

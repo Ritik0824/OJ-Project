@@ -27,37 +27,36 @@ const register=async(req,res)=>{
 }
 
 
-const Login=async(req,res)=>{
+const Login = async (req, res) => {
     try {
-          const {email,password}=req.body
-
-          const user=await UserModel.findOne({email})
-
-          if (!user) {
-              return res.status(404).json({success:false,message:"Invalid credentials"})
-          }
-
-          const ispassaowrdValid= await bcryptjs.compare(password,user.password)
-          if (!ispassaowrdValid) {
-            return res.status(404).json({success:false,message:"Invalid credentials"})
-            
-          }
-               const token= jwt.sign({userId:user._id},process.env.SECRET_KEY)
-
-                res.cookie('token',token,{
-                    httpOnly: true,
-                    secure: false,
-                    maxAge: 3600000,
-                    
-                })
-                await listUsers();
-              res.status(200).json({success:true,message:"Login successfully",user,token})
-
+      const { email, password } = req.body;
+  
+      const user = await UserModel.findOne({ email });
+  
+      if (!user) {
+        return res.status(404).json({ success: false, message: "Invalid credentials" });
+      }
+  
+      const isPasswordValid = await bcryptjs.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(404).json({ success: false, message: "Invalid credentials" });
+      }
+  
+      const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY);
+  
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: false,
+        maxAge: 3600000,
+      });
+  
+      await listUsers();
+      res.status(200).json({ success: true, message: "Login successfully", user, token });
     } catch (error) {
-        res.status(500).json({success:false,message:"interanl server ereo"})
-        console.log(error)
+      res.status(500).json({ success: false, message: "Internal server error" });
+      console.log(error);
     }
-}
+  };
   const Logout=async(req,res)=>{
     try {
         res.clearCookie('token')
@@ -83,22 +82,32 @@ const Login=async(req,res)=>{
             }
      }
 
-     const getUser=async(req,res)=>{
+     const getUser = async (req, res) => {
         try {
-            const savedGetUser = await UserModel.find({});
-            res.status(200).json({
-                status: 'Success',
-                data: { savedGetUser }
+          // Fetch the user based on the ID stored in the token
+          const userId = req.user.userId;
+          const user = await UserModel.findById(userId);
+      
+          if (!user) {
+            return res.status(404).json({
+              status: 'Failed',
+              message: 'User not found'
             });
+          }
+      
+          res.status(200).json({
+            status: 'Success',
+            data: user
+          });
         } catch (err) {
-            res.status(500).json({
-                status: 'Failed',
-                message: err.message
-            });
+          res.status(500).json({
+            status: 'Failed',
+            message: err.message
+          });
         }
-     }
+      };
 
-     const getGoogleuser = async(req, res) => {
+      const getGoogleuser = async(req, res) => {
         try {
             const savedGetUser = await googleUserModel.find({});
             res.status(200).json({

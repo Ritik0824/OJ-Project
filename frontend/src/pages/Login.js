@@ -24,7 +24,7 @@ export default function Login() {
       const { data, status } = response;
 
       if (status === 200) {
-        const { user, message } = data;
+        const { user, message, token } = data;
         if (user.role === 'admin') {
           navigate('/', { replace: true }); // Redirect to the root URL and replace history
            // Fallback redirection using window.location
@@ -35,7 +35,8 @@ export default function Login() {
         toast.success(message);
         dispatch(SetUser(user));
         localStorage.setItem('email', email);
-        console.log('Email stored in local storage:', email);
+        localStorage.setItem('token', token); // Store the token in local storage
+        console.log('Email and token stored in local storage:', email, token);
       }
     } catch (error) {
       console.log('Login error:', error);
