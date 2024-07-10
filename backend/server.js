@@ -21,6 +21,7 @@ DBConnection();
 // Middleware
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Replace with your frontend's origin
+    res.header('Access-Control-Allow-Origin', 'https://codeflowoj.netlify.app');// Replace with your frontend's origin
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   
@@ -39,7 +40,7 @@ app.get('/', (req, res) => {
 });
 
 app.post("/run", async (req, res) => {
-    console.log("running /run request");
+    //console.log("running /run request");
     const { language = 'cpp', code, input } = req.body;
     if (code === undefined) {
         return res.status(404).json({ success: false, error: "Empty code!" });
