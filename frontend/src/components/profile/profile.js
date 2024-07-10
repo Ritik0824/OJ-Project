@@ -4,67 +4,46 @@ import './profile.css'; // Import the CSS file
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
 import { generateRandomData } from './utils';
+import decode from '../../services/decode';
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
-  const [googleUser, setGoogleUser] = useState(null);
   const [profileInfo, setProfileInfo] = useState({ name: '', email: '', role: '' });
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem('token');
+      const { userId } = decode(token);
+      console.log("User ID:", userId);
       try {
-        const response = await Axios.get('http://localhost:8000/api/auth/getUser');
-        if (response.data.status === 'Success' && Array.isArray(response.data.data.savedGetUser)) {
-          setUser(response.data.data.savedGetUser);
+        const response = await Axios.get('http://localhost:8000/api/auth/getUser',{
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        //console.log("API User Response:", response.data);
+        //console.log(response.data.data.name);
+
+        if (response.data) {
+          setProfileInfo({
+            name: response.data.data.name,
+            email: response.data.data.email,
+            role: response.data.data.role,
+          });
         } else {
-          console.error('Error fetching users:', response.data);
+          console.error('User data not found:', response.data);
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching user profile:', error);
       }
     };
 
-    const fetchGoogleUser = async () => {
-      try {
-        const response = await Axios.get('http://localhost:8000/api/auth/getGoogleUser');
-        if (response.data.status === 'Success' && response.data.data.savedGetUser) {
-          setGoogleUser(response.data.data.savedGetUser);
-        } else {
-          console.error('Error fetching Google user:', response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching Google user:', error);
-      }
-    };
-
-    fetchUsers();
-    fetchGoogleUser();
+    fetchUserProfile();
   }, []);
 
-  useEffect(() => {
-    const storedEmail = localStorage.getItem('email');
+  if (!profileInfo.email) {
+    return <div>Loading...</div>;
+  }
 
-    if (storedEmail && user && googleUser) {
-      const currentUser = user.find((user) => user.email === storedEmail);
-      const googleCurrentUser = googleUser.find((user) => user.email === storedEmail);
-
-      if (currentUser) {
-        setProfileInfo({
-          name: currentUser.name,
-          email: currentUser.email,
-          role: currentUser.role,
-        });
-      } else if (googleCurrentUser) {
-        setProfileInfo({
-          name: googleCurrentUser.name,
-          email: googleCurrentUser.email,
-          role: googleCurrentUser.role,
-        });
-      } else {
-        console.error('Current user not found');
-      }
-    }
-  }, [user, googleUser]);
 
   if (!profileInfo.email) {
     return <div>Loading...</div>;

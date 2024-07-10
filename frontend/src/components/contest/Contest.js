@@ -173,12 +173,12 @@ const Contest = () => {
       endDate: contest.endDate,
       problems: contest.problems
     };
-    console.log("Submitting contest:", contestData); // Debugging
+    //console.log("Submitting contest:", contestData); // Debugging
     try {
       const response = await axios.post('http://localhost:8000/api/contest', contestData, {
         withCredentials: true
       });
-      console.log("Response data:", response.data); // Debugging
+      //console.log("Response data:", response.data); // Debugging
       setContest({
         name: '',
         description: '',
@@ -196,7 +196,7 @@ const Contest = () => {
   const fetchContests = async () => {
     try {
       const response = await axios.get('http://localhost:8000/api/get-contest');
-      console.log("Fetched contests:", response.data.contest); // Debugging
+      //console.log("Fetched contests:", response.data.contest); // Debugging
       setContests(response.data.contest);
       setLoading(false);
     } catch (error) {

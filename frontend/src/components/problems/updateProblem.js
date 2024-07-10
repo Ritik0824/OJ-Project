@@ -71,7 +71,7 @@ const UpdatedProblem = () => {
 
     try {
       const response = await axios.put(`http://localhost:8000/update-problem/${id}`, updatedProblem);
-      console.log('Problem updated successfully:', response.data);
+      // console.log('Problem updated successfully:', response.data);
     } catch (error) {
       console.error('Error updating problem:', error);
     }

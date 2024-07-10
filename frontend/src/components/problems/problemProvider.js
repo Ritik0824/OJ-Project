@@ -43,7 +43,6 @@ const ProblemProvider = ({ children }) => {
   }, [navigate]);
 
   const addProblem = (newProblem) => {
-    console.log("Adding problem:", newProblem);
     setProblems((prevProblems) => [...prevProblems, newProblem]);
   };
 

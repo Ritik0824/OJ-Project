@@ -30,7 +30,7 @@ const CoursesTitle = styled.h1`
 `;
 
 const Courses = () => {
-  console.log("This is courses");
+  //console.log("This is courses");
   return (
     <CoursesContainer>
       <CoursesTitle>Coming Soon! Stay Tuned</CoursesTitle>
