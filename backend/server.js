@@ -34,7 +34,7 @@ app.use('/api/submissions', SubmissionRoutes);
 
 app.get('/', (req, res) => {
     res.json({
-        online: "compiler"
+        online: "code-compiler"
     });
 });
 
