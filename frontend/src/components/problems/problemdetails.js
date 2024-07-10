@@ -64,19 +64,19 @@ const SubmissionRow = ({ submission }) => {
   const handleViewCode = () => {
     setShowCodePopup(true);
   };
-  
+
   const handleClosePopup = () => {
     setShowCodePopup(false);
   };
 
   return (
     <>
-    <tr className={statusClass}>
-      <td className="border px-4 py-2">{submission.userId?.name || 'Anonymous'}</td>
-      <td className="border px-4 py-2">{submission.language}</td>
-      <td className="border px-4 py-2">{submission.result}</td>
-      <td className="border px-4 py-2">{format(new Date(submission.createdAt), 'PPpp')}</td>
-      <td className="border px-4 py-2">
+      <tr className={statusClass}>
+        <td className="border px-4 py-2">{submission.userId ? submission.userId.name : 'Me'}</td>
+        <td className="border px-4 py-2">{submission.language}</td>
+        <td className="border px-4 py-2">{submission.result}</td>
+        <td className="border px-4 py-2">{format(new Date(submission.createdAt), 'PPpp')}</td>
+        <td className="border px-4 py-2">
           <button
             onClick={handleViewCode}
             className="bg-black hover:bg-blue-700 text-white py-2 px-4 rounded focus:outline-none"
@@ -141,6 +141,7 @@ const ProblemDetail = () => {
             (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
           );
           setAllSubmissions(sortedSubmissions);
+          console.log('Fetched Submissions:', sortedSubmissions);
         } else {
           //console.error('Failed to fetch submissions:', response.data);
         }
@@ -179,10 +180,14 @@ const ProblemDetail = () => {
     }
   };
 
+  const mySubmissions = allSubmissions.filter(submission => submission.userId === userId);
+  console.log('My Submissions:', mySubmissions); // Debugging log
+
   useEffect(() => {
     const fetchUsers = async () => {
       const token = localStorage.getItem('token');
       const { userId } = decode(token);
+      console.log("User ID:", userId);
       try {
         //console.log("Fetching users");
         const response = await Axios.get('http://localhost:8000/api/auth/getUser',{
@@ -223,7 +228,7 @@ const ProblemDetail = () => {
       code
     };
   
-    console.log("Submitting payload:", payload);
+    //console.log("Submitting payload:", payload);
     
     setIsLoading(true);
     try {
@@ -339,30 +344,30 @@ const ProblemDetail = () => {
 
 {activeSection === 'mySubmissions' && (
   <div>
-    <h2 className="text-xl font-bold mb-4">My Submissions</h2>
-    <table className="table-auto w-full border-collapse border border-gray-200">
-      <thead>
-        <tr>
-          <th className="border px-4 py-2">User Name</th>
-          <th className="border px-4 py-2">Language</th>
-          <th className="border px-4 py-2">Result</th>
-          <th className="border px-4 py-2">Submission Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {allSubmissions.filter(submission => submission.userId?._id === userId).length > 0 ? (
-          allSubmissions.filter(submission => submission.userId?._id === userId).map((submission, index) => (
-            <SubmissionRow key={index} submission={submission} />
-          ))
-        ) : (
+    <h2 className="text-lg font-medium mb-2">My Submissions</h2>
+    {mySubmissions.length === 0 ? (
+      <p>No submissions found for this problem.</p>
+    ) : (
+      <table className="table-auto w-full border-collapse">
+        <thead>
           <tr>
-            <td colSpan="5" className="text-center py-4">No submissions available</td>
+            <th className="border px-4 py-2">User</th>
+            <th className="border px-4 py-2">Language</th>
+            <th className="border px-4 py-2">Result</th>
+            <th className="border px-4 py-2">Created At</th>
+            <th className="border px-4 py-2">Code</th>
           </tr>
-        )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {mySubmissions.map(submission => (
+            <SubmissionRow key={submission._id} submission={submission} userId={userId} />
+          ))}
+        </tbody>
+      </table>
+    )}
   </div>
 )}
+
 
       {activeSection === 'allSubmissions' && (
         <div>

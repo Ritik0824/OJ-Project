@@ -13,7 +13,7 @@ const Profile = () => {
     const fetchUserProfile = async () => {
       const token = localStorage.getItem('token');
       const { userId } = decode(token);
-      console.log("User ID:", userId);
+      //console.log("User ID:", userId);
       try {
         const response = await Axios.get('http://localhost:8000/api/auth/getUser',{
           headers: {

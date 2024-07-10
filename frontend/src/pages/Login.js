@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { SetUser } from '../redux/AuthSlice';
@@ -157,7 +157,7 @@ const Auth = () => {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await post('/api/auth/login', { email, password });
+      const response = await post('http://localhost:8000/api/auth/login', { email, password });
       const { data, status } = response;
 
       if (status === 200) {
@@ -179,7 +179,7 @@ const Auth = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/api/auth/register', { name, email, password });
-      toast.success(response.data.message);
+      toast.success('User successfully registered!');
       navigate('/', { replace: true });
       //console.log(response.data);
     } catch (error) {
@@ -205,6 +205,7 @@ const Auth = () => {
 
   return (
     <Container>
+      <ToastContainer />
       <GradientOverlay />
       <FormContainer>
         <ButtonContainer>

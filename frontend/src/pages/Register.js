@@ -18,7 +18,7 @@ const Register = () => {
       const response = await axios.post('http://localhost:8000/api/auth/register', { name, email, password });
       toast.success(response.data.message);
       navigate('/', { replace: true });
-      console.log(response.data);
+      //console.log(response.data);
     } catch (error) {
       console.error('Registration error:', error);
       toast.error('Failed to register. Please try again.');
@@ -33,7 +33,7 @@ const Register = () => {
       localStorage.setItem('token', result.user.accessToken);
       localStorage.setItem('user', JSON.stringify(result.user));
       localStorage.setItem('email', result.user.email);
-      console.log('Navigating to /');
+      //console.log('Navigating to /');
       navigate('/', { replace: true });
     } catch (error) {
       console.log('Login failed:', error);
