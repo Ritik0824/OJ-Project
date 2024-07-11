@@ -33,7 +33,7 @@ app.use('/api',ProblemRoutes)
 app.use('/api', ContestRoutes)
 
 app.get('/', (req, res) => {
-    res.send('Welcome on CodeFlow');
+    res.send('Welcome');
 });
 
 app.listen(PORT,()=>{
