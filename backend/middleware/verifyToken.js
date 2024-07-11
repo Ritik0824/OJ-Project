@@ -7,7 +7,7 @@ const client = jwksClient({
   });
   
   function getKey(header, callback) {
-    console.log('Fetching key for kid:', header.kid);
+    //console.log('Fetching key for kid:', header.kid);
     client.getSigningKey(header.kid, (err, key) => {
       if (err) {
         //console.error('Error fetching signing key:', err.message);
