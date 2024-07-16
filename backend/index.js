@@ -36,6 +36,10 @@ app.get('/', (req, res) => {
     res.send('Welcome');
 });
 
+app.get('/keep-alive', (req, res) => {
+    res.sendStatus(200);
+});
+
 app.listen(PORT,()=>{
     console.log(`server is running on ${PORT}`)
 });

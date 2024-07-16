@@ -38,6 +38,10 @@ app.get('/', (req, res) => {
     });
 });
 
+app.get('/keep-index-alive', (req, res) => {
+    res.sendStatus(200);
+});
+
 app.post("/run", async (req, res) => {
     //console.log("running /run request");
     const { language = 'cpp', code, input } = req.body;
