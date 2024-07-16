@@ -8,7 +8,7 @@ const Problem = require('./models/ProblemModel');
 const { DBConnection } = require('./database/db.js');
 const Submission = require('./models/SubmissionModel');
 const { listUsers } = require('./firebaseAdmin.js');
-
+const cron = require('node-cron');
 dotenv.config();
 const app = express();
 const cors = require('cors');
@@ -41,6 +41,18 @@ app.get('/', (req, res) => {
 app.get('/keep-index-alive', (req, res) => {
     res.sendStatus(200);
 });
+
+cron.schedule('*/10 * * * *', () => {
+    axios.get('https://oj-project-1.onrender.com/keep-index-alive')
+      .then(response => {
+        console.log('Keep-alive request sent successfully:', response.status);
+      })
+      .catch(error => {
+        console.error('Error sending keep-alive request:', error);
+      });
+});
+
+console.log('Keep-alive service for server.js started.');
 
 app.post("/run", async (req, res) => {
     //console.log("running /run request");
